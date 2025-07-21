@@ -1,3 +1,5 @@
+local Framework = exports['framework']:GetFramework()
+
 RegisterServerEvent('r_inventory:getPlayerData')
 AddEventHandler('r_inventory:getPlayerData', function()
     local source = source
@@ -31,7 +33,7 @@ AddEventHandler('r_inventory:getPlayerInventory', function()
     local identifier = GetPlayerIdentifier(source, 0)
     
     local result = Framework.Database:Query('SELECT slot, item, count, metadata FROM inventories WHERE identifier = ?', {identifier})
-    
+
     -- Récupérer les données des items
     local itemsData = GetAllItemsData()
     
@@ -207,7 +209,7 @@ AddEventHandler('r_inventory:dropItem', function(itemName, count, slot)
         ['@z']= coords.z
     })
 
-    if newItem and newItem[1] then
+    if newItem[1] then
         local itemsData = GetAllItemsData()
         local itemData = itemsData[newItem[1].item]
 
@@ -235,7 +237,6 @@ end)
 -- Event pour récupérer un item au sol
 RegisterServerEvent('r_inventory:pickupItem')
 AddEventHandler('r_inventory:pickupItem', function(groundItemId, toSlot)
-    print("test", groundItemId)
     local source = source
     local identifier = GetPlayerIdentifier(source, 0)
     
@@ -244,16 +245,15 @@ AddEventHandler('r_inventory:pickupItem', function(groundItemId, toSlot)
         ['@id'] = groundItemId
     })
     
-    if groundItem and groundItem[1] then
+    if groundItem[1] then
         -- Vérifier que le slot de destination est libre
         local existingItem = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot', {
             ['@identifier'] = identifier,
             ['@slot'] = toSlot
         })
         
-        if existingItem and not existingItem[1] then
+        if not existingItem[1] then
             -- Ajouter l'item à l'inventaire au slot spécifié
-            print("slot:", toSlot)
             AddItemToInventory(identifier, groundItem[1].item, groundItem[1].count, toSlot, json.encode({}))
             
             -- Supprimer l'item du sol
@@ -276,7 +276,6 @@ AddEventHandler('r_inventory:giveItem', function(slot, itemName, count)
     local identifier = GetPlayerIdentifier(source, 0)
     
     -- TODO : Ajouter la logique pour donner un item
-    print('Le joueur ' .. source .. ' donne ' .. count .. ' ' .. itemName)
     RefreshPlayerInventory(source)
 end)
 
@@ -292,7 +291,7 @@ AddEventHandler('r_inventory:useQuickSlot', function(quickSlot)
         ['@slot'] = quickSlot
     })
     
-    if result and result[1] then
+    if result[1] then
         -- Utiliser l'item
         TriggerEvent('inventory:useItem', quickSlot, result[1].item)
     end
@@ -315,7 +314,7 @@ AddEventHandler('r_inventory:moveItem', function(fromSlot, fromType, toSlot, toT
             ['@slot'] = toSlot
         })
         
-        if item1 and item1[1] then
+        if item1[1] then
             -- Mettre à jour le slot de destination
             Framework.Database:Execute('UPDATE inventories SET slot = @slot WHERE identifier = @identifier AND slot = @fromSlot', {
                 ['@slot'] = toSlot,
@@ -324,7 +323,7 @@ AddEventHandler('r_inventory:moveItem', function(fromSlot, fromType, toSlot, toT
             })
             
             -- Si il y a un item dans le slot de destination, l'échanger
-            if item2 and item2[1] then
+            if item2[1] then
                 Framework.Database:Execute('UPDATE inventories SET slot = @slot WHERE identifier = @identifier AND slot = @toSlot AND id != @excludeId', {
                     ['@slot'] = fromSlot,
                     ['@identifier'] = identifier,
@@ -349,7 +348,7 @@ AddEventHandler('r_inventory:stackGroundToPlayer', function(groundItemId, toSlot
         ['@id'] = groundItemId
     })
     
-    if groundItem and groundItem[1] then
+    if groundItem[1] then
         -- Vérifier que le slot de destination contient le même item
         local existingItem = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot AND item = @item', {
             ['@identifier'] = identifier,
@@ -357,7 +356,7 @@ AddEventHandler('r_inventory:stackGroundToPlayer', function(groundItemId, toSlot
             ['@item'] = groundItem[1].item
         })
         
-        if existingItem and existingItem[1] then
+        if existingItem[1] then
             -- Stacker les items
             local newCount = existingItem[1].count + groundItem[1].count
             
