@@ -11,6 +11,7 @@ shared_script 'shared/config.lua'
 
 server_scripts {
     'server/sv_inventory.lua',
+    'server/sv_events.lua',
 }
 
 client_scripts {
@@ -27,7 +28,8 @@ ui_page_preload 'yes'
 files {
     'html/index.html',
     'html/style.css',
-    'html/script.js'
+    'html/script.js',
+    'html/images/*.png'
 }
 
 dependencies {
