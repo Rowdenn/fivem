@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventaire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="inventory-container" class="hidden">
+        <div class="inventory-main">
+            <!-- Section gauche - Inventaire du joueur -->
+            <div class="inventory-section player-inventory">
+                <div class="inventory-header">
+                    <h2>Inventaire</h2>
+                    <div class="weight-display">
+                        <span id="current-weight">0</span>/<span id="max-weight">50</span> kg
+                    </div>
+                </div>
+
+                <div class="inventory-grid" id="player-grid">
+                    <!-- Génération des slots de l'inventaire -->
+                </div>
+            </div>
+
+            <!-- Section centrale - Objets/Vêtements -->
+            <div class="inventory-section center-section">
+                <!-- Slots des vêtements -->
+                <div class="clothing-header">
+                    <h2>Équipement</h2>
+                </div>
+                
+                <div class="clothing-container">
+                    <div class="clothing-slots-left">
+                        <div class="clothing-slot" data-slot="hat"></div>
+                        <div class="clothing-slot" data-slot="glasses"></div>
+                        <div class="clothing-slot" data-slot="pants"></div>
+                        <div class="clothing-slot" data-slot="shirt"></div>
+                        <div class="clothing-slot" data-slot="shoes"></div>
+                    </div>
+
+                    <div class="character-display-container">
+                        <div class="character-display">
+                            
+                        </div>
+                    </div>
+
+                    <div class="clothing-slots-right">
+                        <div class="clothing-slot" data-slot="bag"></div>
+                        <div class="clothing-slot" data-slot="chain"></div>
+                        <div class="clothing-slot" data-slot="watch"></div>
+                        <div class="clothing-slot" data-slot="bracelet"></div>
+                        <div class="clothing-slot" data-slot="mask"></div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="item-actions">
+                    <button id="use-item" class="action-btn use-btn">Utiliser</button>
+                    <button id="give-item" class="action-btn give-btn">Donner</button>
+                </div>
+
+                <!-- Infos de l'item -->
+                <div class="item-info" id="item-info">
+                    <div class="item-image">
+                        <img src="" alt="" id="item-img">
+                    </div>
+                    <div class="item-details">
+                        <h3 id="item-name"></h3>
+                        <p id="item-description"></p>
+                        <div class="item-stats">
+                            <span id="item-weight"></span>
+                            <span id="item-count"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section droite - Items à proximité -->
+            <div class="inventory-section ground-inventory">
+                <div class="inventory-header">
+                    <h2>Proximité</h2>
+                </div>
+
+                <div class="inventory-grid" id="ground-grid">
+                    <!-- Génération des slots de proximité -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

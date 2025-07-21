@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créateur de Personnage</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="character-creator" class="hidden">
+        <div class="creator-panel">
+            <h2>Créateur de Personnage</h2>
+            
+            <!-- Navigation par onglets -->
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('identity')">Identité</button>
+                <button class="tab-button" onclick="showTab('body')">Corps</button>
+                <button class="tab-button" onclick="showTab('clothing')">Vêtements</button>
+            </div>
+            
+            <!-- Onglet Identité -->
+            <div id="identity" class="tab-content active">
+                <div class="section">
+                    <h3>Informations personnelles</h3>
+                    <div class="slider-group">
+                        <label>Nom: </label>
+                        <input id="lastname" type="text">
+                    </div>
+                    <div class="slider-group">
+                        <label>Prénom: </label>
+                        <input id="firstname" type="text">
+                    </div>
+                    <div class="slider-group">
+                        <label>Date de naissance</label>
+                        <input id="dateofbirth" type="date">
+                    </div>
+                    <div class="slider-group">
+                        <label>Taille: <span id="height_value">180</span>cm</label>
+                        <input id="height" type="range" min="160" max="200" step="1" value="180">
+                    </div>
+                    <div class="slider-group">
+                        <label>Sexe</label>
+                        <select id="sex">
+                            <option value="0">Homme</option>
+                            <option value="1">Femme</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Onglet Corps -->
+            <div id="body" class="tab-content">
+                <!-- Traits du visage -->
+                 <div class="section">
+                    <h3>Forme du visage</h3>
+                    <div class="slider-group">
+                        <label>Visage: <span id="face_shape_value">0</span></label>
+                        <input type="range" id="face_shape" min="0" max="50" step="1" value="0">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Couleur de peau</h3>
+                    <div class="slider-group">
+                        <label>Couleur de peau: <span id="skin_tone_value">0</span></label>
+                        <input type="range" id="skin_tone" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Traits du visage</h3>
+                    <div class="slider-group">
+                        <label>Largeur du nez: <span id="face_feature_0_value">0.0</span></label>
+                        <input type="range" id="face_feature_0" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Hauteur du nez: <span id="face_feature_1_value">0.0</span></label>
+                        <input type="range" id="face_feature_1" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Longueur du nez: <span id="face_feature_2_value">0.0</span></label>
+                        <input type="range" id="face_feature_2" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Pont du nez: <span id="face_feature_3_value">0.0</span></label>
+                        <input type="range" id="face_feature_3" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Bout du nez: <span id="face_feature_4_value">0.0</span></label>
+                        <input type="range" id="face_feature_4" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Décollement du nez: <span id="face_feature_5_value">0.0</span></label>
+                        <input type="range" id="face_feature_5" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Hauteur des sourcils: <span id="face_feature_6_value">0.0</span></label>
+                        <input type="range" id="face_feature_6" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Largeur des sourcils: <span id="face_feature_7_value">0.0</span></label>
+                        <input type="range" id="face_feature_7" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Hauteur des pommettes: <span id="face_feature_8_value">0.0</span></label>
+                        <input type="range" id="face_feature_8" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Largeur des pommettes: <span id="face_feature_9_value">0.0</span></label>
+                        <input type="range" id="face_feature_9" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Largeur des yeux: <span id="face_feature_10_value">0.0</span></label>
+                        <input type="range" id="face_feature_10" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Hauteur des lèvres: <span id="face_feature_11_value">0.0</span></label>
+                        <input type="range" id="face_feature_11" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Largeur des lèvres: <span id="face_feature_12_value">0.0</span></label>
+                        <input type="range" id="face_feature_12" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Épaisseur des lèvres: <span id="face_feature_13_value">0.0</span></label>
+                        <input type="range" id="face_feature_13" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Largeur de la mâchoire: <span id="face_feature_14_value">0.0</span></label>
+                        <input type="range" id="face_feature_14" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Hauteur de la mâchoire: <span id="face_feature_15_value">0.0</span></label>
+                        <input type="range" id="face_feature_15" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Longueur du menton: <span id="face_feature_16_value">0.0</span></label>
+                        <input type="range" id="face_feature_16" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Position du menton: <span id="face_feature_17_value">0.0</span></label>
+                        <input type="range" id="face_feature_17" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Largeur du menton: <span id="face_feature_18_value">0.0</span></label>
+                        <input type="range" id="face_feature_18" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Forme du menton: <span id="face_feature_19_value">0.0</span></label>
+                        <input type="range" id="face_feature_19" min="-1" max="1" step="0.1" value="0">
+                    </div>
+                </div>
+                
+                <!-- Cheveux -->
+                <div class="section">
+                    <h3>Cheveux</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="hair_value">0</span></label>
+                        <input type="range" id="hair" min="0" max="36" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Couleur: <span id="hair_color_value">0</span></label>
+                        <input type="range" id="hair_color" min="0" max="63" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Mèches: <span id="hair_highlight_value">0</span></label>
+                        <input type="range" id="hair_highlight" min="0" max="63" step="1" value="0">
+                    </div>
+                </div>
+                
+                <!-- Yeux -->
+                <div class="section">
+                    <h3>Yeux</h3>
+                    <div class="slider-group">
+                        <label>Couleur: <span id="eye_color_value">0</span></label>
+                        <input type="range" id="eye_color" min="0" max="31" step="1" value="0">
+                    </div>
+                </div>
+                
+                <!-- Overlays -->
+                <div class="section">
+                    <h3>Imperfections</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="blemishes_value">0</span></label>
+                        <input type="range" id="blemishes" min="0" max="23" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Barbe</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="beard_value">0</span></label>
+                        <input type="range" id="beard" min="0" max="28" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Couleur: <span id="beard_color_value">0</span></label>
+                        <input type="range" id="beard_color" min="0" max="63" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Sourcils</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="eyebrows_value">0</span></label>
+                        <input type="range" id="eyebrows" min="0" max="33" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Couleur: <span id="eyebrows_color_value">0</span></label>
+                        <input type="range" id="eyebrows_color" min="0" max="63" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Vieillissement</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="ageing_value">0</span></label>
+                        <input type="range" id="ageing" min="0" max="14" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Maquillage</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="makeup_value">0</span></label>
+                        <input type="range" id="makeup" min="0" max="74" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Couleur: <span id="makeup_color_value">0</span></label>
+                        <input type="range" id="makeup_color" min="0" max="74" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Blush</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="blush_value">0</span></label>
+                        <input type="range" id="blush" min="0" max="6" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Teint</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="complexion_value">0</span></label>
+                        <input type="range" id="complexion" min="0" max="11" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Dommages du soleil</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="sun_damage_value">0</span></label>
+                        <input type="range" id="sun_damage" min="0" max="10" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Rouge à lèvres</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="lipstick_value">0</span></label>
+                        <input type="range" id="lipstick" min="0" max="9" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Grains de beauté</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="moles_value">0</span></label>
+                        <input type="range" id="moles" min="0" max="17" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Poils du torse</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="chest_hair_value">0</span></label>
+                        <input type="range" id="chest_hair" min="0" max="16" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Couleur: <span id="chest_hair_color_value">0</span></label>
+                        <input type="range" id="chest_hair_color" min="0" max="63" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Imperfections corporelles</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="body_blemishes_value">0</span></label>
+                        <input type="range" id="body_blemishes" min="0" max="11" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Imperfections additionnelles</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="add_body_blemishes_value">0</span></label>
+                        <input type="range" id="add_body_blemishes" min="0" max="1" step="1" value="0">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Onglet Vêtements -->
+            <div id="clothing" class="tab-content">
+                <div class="section">
+                    <h3>Masque</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="mask_value">0</span></label>
+                        <input type="range" id="mask" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="mask_texture_value">0</span></label>
+                        <input type="range" id="mask_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Texture peau</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="torso_value">0</span></label>
+                        <input type="range" id="torso" min="0" max="50" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Torse 2</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="torso2_value">0</span></label>
+                        <input type="range" id="torso2" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="torso2_texture_value">0</span></label>
+                        <input type="range" id="torso2_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Chaussures</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="shoes_value">0</span></label>
+                        <input type="range" id="shoes" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="shoes_texture_value">0</span></label>
+                        <input type="range" id="shoes_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Jambes</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="legs_value">0</span></label>
+                        <input type="range" id="legs" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="legs_texture_value">0</span></label>
+                        <input type="range" id="legs_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Sac à dos</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="bag_value">0</span></label>
+                        <input type="range" id="bag" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="bag_texture_value">0</span></label>
+                        <input type="range" id="bag_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Accessoires</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="accessory_value">0</span></label>
+                        <input type="range" id="accessory" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="accessory_texture_value">0</span></label>
+                        <input type="range" id="accessory_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Sous-vêtements</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="undershirt_value">0</span></label>
+                        <input type="range" id="undershirt" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="undershirt_texture_value">0</span></label>
+                        <input type="range" id="undershirt_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Gilet pare-balles</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="kevlar_value">0</span></label>
+                        <input type="range" id="kevlar" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="kevlar_texture_value">0</span></label>
+                        <input type="range" id="kevlar_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Badge</h3>
+                    <div class="slider-group">
+                        <label>Style: <span id="badge_value">0</span></label>
+                        <input type="range" id="badge" min="0" max="50" step="1" value="0">
+                    </div>
+                    <div class="slider-group">
+                        <label>Texture: <span id="badge_texture_value">0</span></label>
+                        <input type="range" id="badge_texture" min="0" max="20" step="1" value="0">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Boutons -->
+            <div class="buttons">
+                <button id="save-btn">Sauvegarder</button>
+                <button id="cancel-btn">Annuler</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/script.js"></script>
+</body>
+</html>

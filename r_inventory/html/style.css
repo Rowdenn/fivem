@@ -1,0 +1,609 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: 'Arial', sans-serif;
+    background: transparent !important;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#inventory-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.inventory-main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+    background: transparent;
+}
+
+.inventory-section {
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Section gauche - Inventaire du joueur */
+.player-inventory {
+    width: 28vw;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Section centrale - Équipement */
+.center-section {
+    width: 32vw;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Section droite - Proximité */
+.ground-inventory {
+    width: 28vw;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.inventory-header h2,
+.clothing-header h2 {
+    color: #64b5f6;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.clothing-header {
+    text-align: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.weight-display {
+    color: #fff;
+    font-size: 14px;
+    background: rgba(100, 181, 246, 0.2);
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #64b5f6;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    max-height: 80hv;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.clothing-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex: 1;
+    position: relative;
+    min-height: 400px;
+}
+
+.clothing-slots-right, .clothing-slots-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 12px;
+}
+
+.clothing-slot {
+    width: 75px;
+    height: 75px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.inventory-slot:hover,
+.clothing-slot:hover {
+    background: rgba(100, 181, 246, 0.2);
+    border-color: #64b5f6;
+    transform: scale(1.05);
+}
+
+.inventory-slot.selected {
+    background: rgba(100, 181, 246, 0.3);
+    border-color: #64b5f6;
+    box-shadow: 0 0 15px rgba(100, 181, 246, 0.5);
+}
+
+.inventory-slot.has-item {
+    border-color: #64b5f6;
+    background: rgba(100, 181, 246, 0.1);
+}
+
+.inventory-slot[draggable="true"] {
+    cursor: move;
+}
+
+#character-render {
+    width: 300px;
+    height: 400px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid #444;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.character-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* Animation pour les quick slots */
+.quick-slot::before {
+    content: attr(data-key);
+    position: absolute;
+    color: rgba(0, 0, 0, 0.219);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 58px;
+    font-weight: bold;
+    z-index: -1
+}
+
+.clothing-slot.equipped {
+    background: rgba(255, 193, 7, 0.3);
+    border-color: #ffc107;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+}
+
+.inventory-slot.quick-slot {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.15);
+}
+
+.slot-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 6px;
+}
+
+.slot-count {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    min-width: 16px;
+    text-align: center;
+    z-index: 10;
+}
+
+.slot-rarity {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.item-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.action-btn.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.use-btn {
+    background: linear-gradient(45deg, #4caf50, #45a049);
+    color: white;
+}
+
+.give-btn {
+    background: linear-gradient(45deg, #2196f3, #1976d2);
+    color: white;
+}
+
+.action-btn:hover.active {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.item-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: all 0.3s ease;
+    flex: 0 0 auto;
+    overflow: hidden;
+}
+
+.item-info.active {
+    opacity: 1;
+}
+
+.item-image {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.item-image img {
+    width: 90%;
+    height: 90%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.item-details h3 {
+    color: #64b5f6;
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.item-details p {
+    color: #ccc;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 8px;
+    line-height: 1.3; 
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.item-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #aaa;
+    padding-top: 5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.close-zone {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #64b5f6;
+    font-size: 16px;
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #64b5f6;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.close-zone:hover {
+    background: rgba(100, 181, 246, 0.2);
+    transform: translateX(-50%) scale(1.05);
+}
+
+/* Scrollbar personnalisée */
+.inventory-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.inventory-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb {
+    background: #64b5f6;
+    border-radius: 10px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb:hover {
+    background: #42a5f5;
+}
+
+@media (max-width: 1400px) {
+    .character-display {
+        width: 150px;
+        height: 250px;
+    }
+    
+    .item-info {
+        max-height: 100px;
+        padding: 10px;
+    }
+    
+    .item-image {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: scale(0.95);
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+}
+
+.inventory-main {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.inventory-slot.selected {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .inventory-main {
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .player-inventory, .ground-inventory {
+        width: 300px;
+        height: 550px;
+    }
+    
+    .center-section {
+        width: 350px;
+        height: 550px;
+    }
+    
+    .inventory-slot {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .clothing-slot {
+        width: 70px;
+        height: 70px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .inventory-main {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .player-inventory, .ground-inventory, .center-section {
+        width: 90vw;
+        max-width: 500px;
+        height: auto;
+        max-height: 25vh;
+    }
+    
+    .inventory-grid {
+        max-height: 200px;
+    }
+    
+    .clothing-slots {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* Styles pour le drag and drop */
+.inventory-slot {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.inventory-slot.has-item {
+    border-color: #64b5f6;
+    background: rgba(100, 181, 246, 0.1);
+}
+
+.inventory-slot.has-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(100, 181, 246, 0.3);
+}
+
+.inventory-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    pointer-events: none; /* Empêche les événements sur l'image */
+}
+
+.item-count {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 11px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    min-width: 16px;
+    text-align: center;
+    font-weight: bold;
+    pointer-events: none; /* Empêche les événements sur le compteur */
+}
+
+/* Animation pour le feedback visuel */
+@keyframes dragFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.inventory-slot.drag-start {
+    animation: dragFeedback 0.3s ease;
+}
+
+/* Optimisations pour les performances */
+.drag-preview {
+    will-change: transform;
+    transform-origin: center center;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.inventory-slot {
+    transition: all 0.1s ease;
+    will-change: transform, box-shadow;
+}
+
+.inventory-slot.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.inventory-slot.drag-over {
+    background: rgba(0, 255, 0, 0.2);
+    border: 2px solid #00ff00;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+.inventory-slot.drop-success {
+    animation: dropSuccess 0.3s ease-out;
+}
+
+@keyframes dropSuccess {
+    0% {
+        transform: scale(1);
+        background: rgba(0, 255, 0, 0.2);
+    }
+    50% {
+        transform: scale(1.1);
+        background: rgba(0, 255, 0, 0.4);
+    }
+    100% {
+        transform: scale(1);
+        background: transparent;
+    }
+}
+
+/* Curseur personnalisé pendant le drag */
+.dragging-cursor {
+    cursor: grabbing !important;
+}
+
+/* Empêcher la sélection de texte pendant le drag */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.inventory-slot.drag-ready {
+    cursor: grabbing;
+    transform: scale(1.02);
+    transition: transform 0.1s ease-out;
+}
