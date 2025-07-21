@@ -15,6 +15,10 @@ server_scripts {
 
 client_scripts {
     'client/cl_inventory.lua',
+    'client/cl_nui.lua',
+    'client/cl_threads.lua',
+    'client/cl_events.lua',
+    'client/cl_globals.lua'
 }
 
 ui_page 'html/index.html'
