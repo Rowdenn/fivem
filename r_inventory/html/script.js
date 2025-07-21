@@ -33,9 +33,6 @@ window.addEventListener('message', function(event) {
         case 'addGroundItem':
             addGroundItem(data.groundItem);
             break;
-        case 'updateGroundItems':
-            updateGroundItems(data.groundItems);
-            break;
     }
 });
 
@@ -153,6 +150,41 @@ function generateGroundSlots(item, index) {
     updateGroundSlots();
 }
 
+function getImagePath(imageItem) {
+    return `nui://r_inventory/html/images/${imageItem}`;
+}
+
+function createItemImage(item, slot) {
+    const existingImg = slot.querySelector('.item-image');
+    if (existingImg) {
+        existingImg.remove();   
+    }
+
+    const itemImg = document.createElement('img');
+    itemImg.className = 'item-image';
+    itemImg.alt = item.label || item.item;
+    
+    let errorCount = 0;
+    itemImg.onerror = function() {
+        errorCount++;
+        if (errorCount === 1) {
+            console.warn(`Image not found for item: ${item.item} (${item.image})`);
+            this.src = 'nui://r_inventory/html/images/default.png'; // Chemin par défaut si l'image ne se charge pas
+        } else if (errorCount > 1) {
+            console.error(`Failed to load image for item: ${item.item}`);
+            this.style.display = 'none'; // Cacher l'image après plusieurs échecs
+            const fallback = document.createElement('div');
+            fallback.className = 'item-fallback';
+            fallback.textContent = '?';
+            slot.appendChild(fallback);
+        }
+    };
+
+    itemImg.src = getImagePath(item.image);
+    console.log(`Loading image for item: ${item.item} from ${itemImg.src}`);
+    return itemImg;
+}
+
 function updatePlayerSlots() {
     const playerGrid = document.getElementById('player-grid');
     if (!playerGrid) return;
@@ -166,33 +198,24 @@ function updatePlayerSlots() {
         slot.style.cursor = 'default';
     });
     
-    playerInventory.forEach(item => {
+    playerInventory.forEach((item, index) => {
         const slot = playerGrid.querySelector(`[data-slot="${item.slot}"]`);
+
         if (slot) {
             slot.classList.add('has-item');
             slot.setAttribute('data-item', item.item);
             slot.setAttribute('data-count', item.count);
             slot.style.cursor = 'grab';
             
-            const itemImg = document.createElement('img');
-            if (item.image) {
-                itemImg.src = `data:image/png;base64,${item.image}`;
-            } else {
-                itemImg.src = 'https://placehold.co/48x48';
-            }
-            itemImg.alt = item.label || item.item;
-            itemImg.style.pointerEvents = 'none';
-            itemImg.onerror = function() {
-                this.src = 'https://placehold.co/48x48';
-            };
-            
-            const itemCount = document.createElement('span');
-            itemCount.className = 'item-count';
-            itemCount.textContent = item.count > 1 ? item.count : '';
-            itemCount.style.pointerEvents = 'none';
-            
+            const itemImg = createItemImage(item, slot);
             slot.appendChild(itemImg);
-            slot.appendChild(itemCount);
+
+            if (item.count && item.count > 1) {
+                const itemCount = document.createElement('span');
+                itemCount.className = 'item-count';
+                itemCount.textContent = item.count;
+                slot.appendChild(itemCount);
+            }
         }
     });
 }
@@ -214,7 +237,7 @@ function updateGroundSlots() {
         slot.dataset.groundId = item.id;
 
         const itemImage = document.createElement('img');
-        itemImage.src = `images/${item.image}`;
+        itemImage.src = `./images/${item.image}`;
         itemImage.alt = item.label || item.item;
         itemImage.className = 'item-image';
 
@@ -260,46 +283,19 @@ function selectSlot(slotNumber, type) {
 }
 
 function updateItemInfo(itemData) {
-    const itemInfo = document.getElementById('item-info');
     const useBtn = document.getElementById('use-item');
     const giveBtn = document.getElementById('give-item');
     
     if (itemData) {
-        itemInfo.classList.add('active');
-        
-        document.getElementById('item-name').textContent = itemData.label || itemData.item;
-        document.getElementById('item-description').textContent = itemData.description || 'Aucune description';
-        document.getElementById('item-weight').textContent = `Poids: ${itemData.weight || 0}kg`;
-        document.getElementById('item-count').textContent = `Quantité: ${itemData.count || 1}`;
-        
-        const itemImg = document.getElementById('item-img');
-        
-        // Utiliser l'image de la base de données
-        if (itemData.image) {
-            itemImg.src = `data:image/png;base64,${itemData.image}`;
-        } else {
-            // Image par défaut si pas d'image en base
-            itemImg.src = 'https://placehold.co/64x64';
-        }
-        
-        itemImg.alt = itemData.label || itemData.item;
-        itemImg.onerror = function() {
-            this.src = 'https://placehold.co/64x64';
-        };
-        
         useBtn.classList.add('active');
         giveBtn.classList.add('active');
     } else {
-        itemInfo.classList.remove('active');
-        
         useBtn.classList.remove('active');
         giveBtn.classList.remove('active');
     }
 }
 
 function addGroundItem(newItem) {
-    console.log("Nouvel item ajouté au sol : ", newItem);
-
     const existingIndex = groundItems.findIndex(item => item.id === newItem.id);
 
     if (existingIndex === -1) {
@@ -309,7 +305,6 @@ function addGroundItem(newItem) {
             updateGroundSlots();
         }
 
-        console.log(`Item ${newItem.label || newItem.item} ajouté au sol`)
     } else {
         error.log('Item déjà présent, ignoré')
     }
@@ -324,11 +319,9 @@ function removeGroundItem(itemId) {
         if (inventoryOpen) {
             updateGroundSlots();
         }
-
-        console.log(`Item ${itemId} supprimé du sol`)
     }
 }
- 
+
 function updatePlayerInfo(playerData) {
     const currentWeight = document.getElementById('current-weight');
     const maxWeight = document.getElementById('max-weight');
@@ -338,17 +331,15 @@ function updatePlayerInfo(playerData) {
 }
 
 function updateInventory(inventory) {   
-    playerInventory = inventory;
+    inventory.forEach(newItem => {
+        const oldItem = playerInventory.find(item => item.slot === newItem.slot);
+        if (oldItem && oldItem.image && !newItem.image) {
+            newItem.image = oldItem.image; // Conserver l'image de l'ancien item
+        }
+    });
     
-    const playerGrid = document.getElementById('player-grid');
-    if (playerGrid) {
-        playerGrid.style.opacity = '0.5';
-        
-        setTimeout(() => {
-            updatePlayerSlots();
-            playerGrid.style.opacity = '1';
-        }, 100);
-    }
+    playerInventory = inventory;
+    updatePlayerSlots();
 }
 
 function updateGroundItems(items) {
@@ -516,9 +507,6 @@ function handleMouseUp(e) {
     if (draggedItem && !isDragStarted) {
         // Attendre un peu pour voir si c'est un double-clic
         clickTimeout = setTimeout(() => {
-            if (clickCount === 1) {
-                console.log('Simple clic sur item');
-            }
             cleanupDrag();
         }, 250);
         return;
@@ -534,14 +522,7 @@ function handleMouseUp(e) {
         if (targetSlot && draggedItem && targetSlot !== dragElement) {
             const targetSlotNum = parseInt(targetSlot.dataset.slot);
             const targetType = targetSlot.dataset.type;
-            
-            console.log('Drag operation:', {
-                from: draggedItem.type,
-                to: targetType,
-                sourceSlot: draggedItem.slot,
-                targetSlot: targetSlotNum,
-                groundId: draggedItem.id
-            });
+    
             
             // Vérifier si c'est pas le même slot
             if (draggedItem.slot !== targetSlotNum || draggedItem.type !== targetType) {
@@ -612,13 +593,6 @@ function handleTransfer(draggedItem, targetSlot) {
 function transferGroundToPlayer(draggedItem, targetSlot) {
     const targetSlotNum = parseInt(targetSlot.dataset.slot);
     
-    console.log('Transfer data:', {
-        draggedItem: draggedItem, // Debug complet
-        groundItemId: draggedItem.id,
-        toSlot: targetSlotNum,
-        item: draggedItem.item
-    });
-    
     // Vérifier si l'ID existe
     if (!draggedItem.id) {
         console.error('ERREUR: groundItemId manquant!', draggedItem);
@@ -629,7 +603,6 @@ function transferGroundToPlayer(draggedItem, targetSlot) {
         const targetItem = targetSlot.dataset.item;
         
         if (targetItem === draggedItem.item) {
-            console.log('Stacking ground item...');
             fetch(`https://r_inventory/stackGroundToPlayer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -639,11 +612,8 @@ function transferGroundToPlayer(draggedItem, targetSlot) {
                     count: parseInt(draggedItem.count)
                 })
             });
-        } else {
-            console.log('Cannot stack different items');
         }
     } else {
-        console.log('Picking up ground item...');
         fetch(`https://r_inventory/pickupItem`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
