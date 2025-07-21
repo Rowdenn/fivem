@@ -10,11 +10,14 @@ function GetPlayerInventory(identifier)
     })
     
     for _, item in pairs(result) do
+        local itemData = GetItemData(item.item)
+
         local inventoryItem = {
             item = item.item,
             count = item.count,
             metadata = json.decode(item.metadata or '{}'),
-            slot = item.slot
+            slot = item.slot,
+            image = itemData and itemData.image or 'default.png',
         }
 
         table.insert(inventory, inventoryItem)
