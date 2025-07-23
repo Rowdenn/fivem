@@ -16,6 +16,14 @@ function OpenInventory()
     
     CreatePedScreen()
 
+    CreateThread(function()
+        while InventoryOpen do
+            SetMouseCursorVisible(false)
+            SetMouseCursorSprite(0)
+            Citizen.Wait(0)
+        end
+    end)
+
     -- Récupérer les données nécessaires
     RefreshInventory()
     TriggerServerEvent('r_inventory:getGroundItems') -- Items proches pour l'inventaire
@@ -132,7 +140,6 @@ end
 
 function CreatePedScreen()
     CreateThread(function()
-        -- Nettoyer l'ancien ped s'il existe
         if DoesEntityExist(PlayerPedPreview) then
             DeleteEntity(PlayerPedPreview)
             PlayerPedPreview = nil
@@ -140,7 +147,7 @@ function CreatePedScreen()
 
         SetFrontendActive(true)
         ActivateFrontendMenu(GetHashKey("FE_MENU_VERSION_EMPTY"), true, -1)
-        SetMouseCursorVisible(false)
+
         FrontendActive = true
 
         Citizen.Wait(100)
