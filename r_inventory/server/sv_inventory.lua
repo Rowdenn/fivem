@@ -175,3 +175,38 @@ function RefreshPlayerInventory(player)
     -- TriggerClientEvent('r_inventory:getGroundItems', player)
     TriggerClientEvent('r_inventory:updatePlayerData', player, GetPlayerData(player))
 end
+
+-- Ici on utilise une fonction pour toujours garder la bonne source
+function UseItem(source, slot, itemName)
+    local identifier = GetPlayerIdentifier(source, 0)
+    
+    -- Vérifie si le joueur possède l'item
+    local hasItem = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot AND item = @item', {
+        ['@identifier'] = identifier,
+        ['@slot'] = slot,
+        ['@item'] = itemName
+    })
+    
+    if hasItem[1] then
+        local itemData = GetItemData(itemName)
+
+        if itemData and itemData.usable then
+            if itemData.category == 'food' then
+                print("Using food item: " .. itemName)
+                -- TODO : Ajouter le système de métabolisme quand il sera fait
+            elseif itemData.category == 'drink' then
+                print("Using drink item: " .. itemName)
+                -- TODO : Ajouter la logique pour les boissons
+            elseif itemData.category == 'tool' then
+                print("Using tool item: " .. itemName)
+                -- TODO : Ajouter la logique pour les outils
+            end
+
+            if itemData.usable then
+                RemoveItemFromInventory(identifier, slot, 1)
+            end
+
+            RefreshPlayerInventory(source)
+        end
+    end
+end

@@ -155,34 +155,7 @@ end)
 RegisterServerEvent('r_inventory:useItem')
 AddEventHandler('r_inventory:useItem', function(slot, itemName)
     local source = source
-    local identifier = GetPlayerIdentifier(source, 0)
-    
-    -- Vérifie si le joueur possède l'item
-    local hasItem = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot AND item = @item', {
-        ['@identifier'] = identifier,
-        ['@slot'] = slot,
-        ['@item'] = itemName
-    })
-    
-    if hasItem then
-        local itemData = GetItemData(itemName)
-
-        if itemData and itemData.usable then
-            if itemData.category == 'food' then
-                -- TODO : Ajouter le système de métabolisme quand il sera fait
-            elseif itemData.type == 'weapon' then
-                -- TODO : Ajouter la logique pour équiper une arme
-            elseif itemData.type == 'tool' then
-                -- TODO : Ajouter un truc jsp si je vais garder cette condition
-            end
-
-            if itemData.usable then
-                RemoveItemFromInventory(identifier, slot, 1)
-            end
-
-            RefreshPlayerInventory(source)
-        end
-    end
+    UseItem(source, slot, itemName)
 end)
 
 -- Event pour jeter un item
@@ -284,16 +257,17 @@ RegisterServerEvent('r_inventory:useQuickSlot')
 AddEventHandler('r_inventory:useQuickSlot', function(quickSlot)
     local source = source
     local identifier = GetPlayerIdentifier(source, 0)
-    
-    -- Récupérer l'item dans le quick slot (slot 1-5)
+
     local result = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot', {
         ['@identifier'] = identifier,
         ['@slot'] = quickSlot
     })
+
+    print(json.encode(result))
     
     if result[1] then
         -- Utiliser l'item
-        TriggerEvent('inventory:useItem', quickSlot, result[1].item)
+        UseItem(source, result[1].slot, result[1].item)
     end
 end)
 

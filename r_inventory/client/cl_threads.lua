@@ -1,3 +1,6 @@
+local lastQuickSlotUsed = 0
+local isQuickSlotOnCd = false
+
 -- Détecte les joueurs proches
 Citizen.CreateThread(function()
     while true do
@@ -39,28 +42,47 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
         
+        local shouldWait = true
+        
         -- Touche TAB pour ouvrir/fermer l'inventaire
-        if IsControlJustPressed(0, 37) then -- TAB
+        if IsControlPressed(0, Config.Keys.OpenInventory) then -- TAB
             if InventoryOpen then
                 CloseInventory()
             else
                 OpenInventory()
             end
+            shouldWait = false
         end
         
         -- Échap pour fermer l'inventaire
-        if IsControlJustPressed(0, 177) and InventoryOpen then -- ESC
+        if IsControlPressed(0, 177) and InventoryOpen then -- ESC
             CloseInventory()
+            shouldWait = false
         end
         
         -- Touches de raccourci (1-5) pour les quick slots
-        if not InventoryOpen then
-            for i = 1, 5 do
-                local control = i + 1 -- Les contrôles 2-6 correspondent aux touches 1-5
-                if IsControlJustPressed(0, control) then
+        local currentTime = GetGameTimer()
+
+        if not InventoryOpen and not isQuickSlotOnCd then
+            for i, key in pairs(Config.Keys.QuickUse) do
+                if IsControlPressed(0, key) then
                     TriggerServerEvent('r_inventory:useQuickSlot', i)
+
+                    isQuickSlotOnCd = true
+                    lastQuickSlotUsed = currentTime
+
+                    SetTimeout(500, function()
+                        isQuickSlotOnCd = false
+                    end)
+
+                    shouldWait = false
+                    break
                 end
             end
+        end
+
+        if shouldWait then
+            Citizen.Wait(50)
         end
     end
 end)
