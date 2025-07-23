@@ -1,0 +1,41 @@
+<!-- Ajouter un écran de coma ? --><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Death System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="deathContainer" class="hidden">
+        <div class="death-overlay">
+            <div class="death-content">
+                <!-- Icône selon le type de mort -->
+                <div id="deathIcon" class="death-icon">💀</div>
+                
+                <!-- Message principal -->
+                <h1 id="deathTitle">Vous êtes inconscient</h1>
+                <p id="deathMessage">Attendez les secours ou patientez...</p>
+                
+                <!-- Barre de progression circulaire -->
+                <div class="timer-container">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring-circle" 
+                                cx="60" cy="60" r="54"
+                                stroke-dasharray="339.292"
+                                stroke-dashoffset="339.292"></circle>
+                    </svg>
+                    <div class="timer-text">
+                        <span id="timeLeft">30</span>
+                        <small>secondes</small>
+                    </div>
+                </div>
+                
+                <!-- Effets visuels -->
+                <div class="pulse-effect"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
