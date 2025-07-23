@@ -138,6 +138,7 @@ function StartDeathProcess(cat, koTime)
     isInDeathProcess = true
     isDead = true
 
+    MakePlayerInvisibleToNPCs(true)
     ShowComaInterface(cat, koTime)
     DisableAllControls()
     StartDeathTimer()
@@ -167,8 +168,22 @@ function StartDeathTimer()
 
         if deathTimer <= 0 then
             RevivePlayer()
+            MakePlayerInvisibleToNPCs(false)
         end
     end)
+end
+
+function MakePlayerInvisibleToNPCs(enable)
+    if enable then       
+        print(PlayerId() .. " is now invisible to NPCs")
+        print("Making player invisible to NPCs") 
+        SetEveryoneIgnorePlayer(PlayerId(), true)
+        SetPoliceIgnorePlayer(PlayerId(), true)
+    else
+        print("Restoring player visibility to NPCs")
+        SetEveryoneIgnorePlayer(PlayerId(), false)
+        SetPoliceIgnorePlayer(PlayerId(), false)
+    end
 end
 
 RegisterCommand('testdeath', function(source, args)
@@ -245,6 +260,8 @@ AddEventHandler('gameEventTriggered', function(name, data)
                 if IsPedAPlayer(attacker) then
                     local attackerId = NetworkGetPlayerIndexFromPed(attacker)
                     local attackerName = GetPlayerName(attackerId)
+
+                    -- TODO Ajouter les logs discord
                 end
             end
 
