@@ -262,8 +262,6 @@ AddEventHandler('r_inventory:useQuickSlot', function(quickSlot)
         ['@identifier'] = identifier,
         ['@slot'] = quickSlot
     })
-
-    print(json.encode(result))
     
     if result[1] then
         -- Utiliser l'item
