@@ -6,7 +6,8 @@ description 'Metabolism System'
 version '1.0.0'
 
 dependencies {
-    'r_coma'
+    'r_coma',
+    'r_notify'
 } 
 
 client_scripts {
