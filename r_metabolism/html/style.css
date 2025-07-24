@@ -15,7 +15,7 @@ body {
     bottom: 11px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 11px;
     z-index: 100;
 }
 
