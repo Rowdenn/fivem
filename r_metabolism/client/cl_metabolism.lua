@@ -1,13 +1,16 @@
 local hunger = 100
 local thirst = 100
+local isLoaded = false
 
 -- Initialise les valeurs de métabolisme
 Citizen.CreateThread(function()
-    while true do
+    while not NetworkIsPlayerActive(PlayerId()) do
         Citizen.Wait(1000)
-        if NetworkIsPlayerActive(PlayerId()) then
-            TriggerServerEvent('r_metabolism:playerLoaded')
-        end
+    end
+
+    if not isLoaded then
+        TriggerServerEvent('r_metabolism:playerLoaded')
+        isLoaded = true
     end
 end)
 
@@ -25,16 +28,17 @@ end)
 
 RegisterNetEvent('r_metabolism:lowValues')
 AddEventHandler('r_metabolism:lowValues', function()
-    print('Hunger:', hunger, 'Thirst:', thirst)
     if hunger == 0 then
         exports['r_coma']:StartDeathProcess('hunger', 40)
-        Citizen.Wait(40000)  -- Wait 40 seconds
-        TriggerServerEvent('r_metabolism:setValues', 50, 50)
+        Citizen.SetTimeout(40000, function()
+            TriggerServerEvent('r_metabolism:setValues', 50, 50)
+        end)  -- Wait 40 seconds
     end
 
     if thirst == 0 then
         exports['r_coma']:StartDeathProcess('thirst', 40)
-        Citizen.Wait(40000)  -- Wait 40 seconds
-        TriggerServerEvent('r_metabolism:setValues', 50, 50)
+        Citizen.SetTimeout(40000, function()
+            TriggerServerEvent('r_metabolism:setValues', 50, 50)
+        end)  -- Wait 40 seconds
     end
 end)

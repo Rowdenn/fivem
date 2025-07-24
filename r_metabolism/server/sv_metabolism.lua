@@ -1,34 +1,50 @@
 local Framework = exports['framework']:GetFramework()
 local playerMetabolism = {}
 
+local Config = {
+    updateInterval = 60000, -- Mise à jour toutes les minutes
+    hungerDecrease = 1,
+    thirstDecrease = 2,
+    warningThreshold = 10
+}
+
 RegisterServerEvent('r_metabolism:playerLoaded')
 AddEventHandler('r_metabolism:playerLoaded', function()
     local source = source
     local identifier = GetPlayerIdentifier(source, 0)
 
-    local result = Framework.Database:Query('SELECT hunger, thirst FROM users WHERE identifier = ?', {
-        identifier
-    })
+    if not identifier then return end
 
-    if source ~= nil then
-        playerMetabolism[source] = {
-            hunger = result[1].hunger or 100,
-            thirst = result[1].thirst or 100
-        }
+    if playerMetabolism[source] then
+        TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
+        return
     end
 
-    TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
+    Framework.Database:Query('SELECT hunger, thirst FROM users WHERE identifier = ?', {identifier}, function(result)
+        if DoesPlayerExist(source) then
+            if source ~= nil then
+                playerMetabolism[source] = {
+                    hunger = (result[1] and result[1].hunger) or 100,
+                    thirst = (result[1] and result[1].thirst) or 100,
+                    identifier = identifier,
+                    isLoaded = true
+                }
+            end
+
+            TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
+        end
+    end)
 end)
 
--- Met à jour les valeurs de métabolisme toutes les 30 secondes
+-- Met à jour les valeurs de métabolisme toutes les minutes
 Citizen.CreateThread(function() 
     while true do
-        Citizen.Wait(60000) -- Update toutes les 30 secondes
+        Citizen.Wait(Config.updateInterval) -- Update toutes les minutes
 
         for playerId, data in pairs(playerMetabolism) do
             if GetPlayerPing(playerId) > 0 then
-                data.hunger = math.max(0, data.hunger - 1)
-                data.thirst = math.max(0, data.thirst - 2)
+                data.hunger = math.max(0, data.hunger - Config.hungerDecrease)
+                data.thirst = math.max(0, data.thirst - Config.thirstDecrease)
 
                 if data.hunger == 10 then
                     exports['r_notify']:ShowNotificationToPlayer(playerId, {
@@ -51,12 +67,8 @@ Citizen.CreateThread(function()
                 if data.hunger <= 10 or data.thirst <= 10 then
                     TriggerClientEvent('r_metabolism:lowValues', playerId)
                 end
-
-                Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
-                    data.hunger,
-                    data.thirst,
-                    GetPlayerIdentifier(playerId, 0)
-                })
+            else
+                playerMetabolism[playerId] = nil
             end
         end
     end
@@ -82,39 +94,56 @@ AddEventHandler('r_metabolism:setValues', function(hunger, thirst)
     local source = source
 
     if playerMetabolism[source] then
-        Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
-            hunger,
-            thirst,
-            GetPlayerIdentifier(source, 0)
-        })
+        playerMetabolism[source].hunger = math.min(100, math.max(0, hunger))
+        playerMetabolism[source].thirst = math.min(100, math.max(0, thirst))
 
         TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
     end
 end)
 
-RegisterServerEvent('r_metabolism:notify')
-AddEventHandler('r_metabolism:notify', function(message)
-    local player = PlayerId()
-    print("envoie d'une notif au joueur ", player)
-
-    
-end)
-
-AddEventHandler('playerDropped', function(reason)
+-- Sauvegarde à la déconnexion du joueur
+AddEventHandler('playerDropped', function()
     local source = source
 
     if source ~= nil then
-        if playerMetabolism[source] then
-            playerMetabolism[source] = nil
+        if playerMetabolism[source] and playerMetabolism[source].isLoaded then
+            local data = playerMetabolism[source]
+            Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
+                data.hunger,
+                data.thirst,
+                data.identifier
+            })
         end
     end
-    
 end)
 
-exports('addHunger', function(amount)
-    TriggerEvent('r_metabolism:updateValue', 'hunger', amount)
+-- Sauvegarde au restart du serveur
+AddEventHandler('onResourceStop', function(resource)
+    if GetCurrentResourceName() == resource then
+        for playerId, data in pairs(playerMetabolism) do
+            if data.isLoaded and DoesPlayerExist(playerId) then
+                Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
+                    data.hunger,
+                    data.thirst,
+                    data.identifier
+                })
+            end
+        end
+    end
 end)
 
-exports('addThirst', function(amount)
-    TriggerEvent('r_metabolism:updateValue', 'thirst', amount)
+exports('addHunger', function(playerId, amount)
+    if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
+        TriggerEvent('r_metabolism:updateValue', 'hunger', amount)
+    end
+end)
+
+exports('addThirst', function(playerId, amount)
+    if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
+        TriggerEvent('r_metabolism:updateValue', 'thirst', amount)
+    end
+end)
+
+exports('getPlayerMetabolism', function(playerId)
+    return playerMetabolism[playerId]
 end)
