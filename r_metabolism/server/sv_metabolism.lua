@@ -30,6 +30,22 @@ Citizen.CreateThread(function()
                 data.hunger = math.max(0, data.hunger - 1)
                 data.thirst = math.max(0, data.thirst - 2)
 
+                if data.hunger == 10 then
+                    exports['r_notify']:ShowNotificationToPlayer(playerId, {
+                        message = "Vous avez très faim",
+                        type = 'error',
+                        duration = 5000
+                    })
+                end
+                
+                if data.thirst == 10 then
+                    exports['r_notify']:ShowNotificationToPlayer(playerId, {
+                        message = "Vous avez très soif",
+                        type = 'error',
+                        duration = 5000
+                    })
+                end
+
                 TriggerClientEvent('r_metabolism:updateValues', playerId, data)
 
                 if data.hunger <= 10 or data.thirst <= 10 then
@@ -74,6 +90,14 @@ AddEventHandler('r_metabolism:setValues', function(hunger, thirst)
 
         TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
     end
+end)
+
+RegisterServerEvent('r_metabolism:notify')
+AddEventHandler('r_metabolism:notify', function(message)
+    local player = PlayerId()
+    print("envoie d'une notif au joueur ", player)
+
+    
 end)
 
 AddEventHandler('playerDropped', function(reason)
