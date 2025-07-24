@@ -20,7 +20,6 @@ function LoadPlayerModel(modelName, freezePlayer)
         return false
     end
     
-    print('Chargement du modèle:', modelName)
     RequestModel(model)
     
     local timeout = 0
