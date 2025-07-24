@@ -26,6 +26,8 @@ local comaTimers = {
     ["unarmed"] = 15,  -- 15 seconds for unarmed
     ["knife"] = 45,  -- 45 seconds for knife
     ["gun"] = 60,  -- 60 seconds for gun
+    ["hunger"] = 40,  -- 40 seconds for hunger
+    ["thirst"] = 40, -- 40 seconds for thirst
     ["unknown"] = 30  -- 30 seconds for unknown causes
 }
 
@@ -267,5 +269,11 @@ AddEventHandler('gameEventTriggered', function(name, data)
 
             print("Player damaged by: " .. GetWeaponCategory(weaponHash))
         end
+    end
+end)
+
+exports('StartDeathProcess', function(cat, koTime)
+    if not isInDeathProcess then
+        StartDeathProcess(cat, koTime)
     end
 end)

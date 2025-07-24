@@ -44,6 +44,16 @@ function showDeathInterface(deathType, totalTime) {
             title.textContent = 'État critique';
             message.textContent = 'Vous avez reçu une balle...';
             break;
+        case 'hunger':
+            icon.textContent = '🍽️';
+            title.textContent = 'Faim extrême';
+            message.textContent = 'Vous êtes en train de mourir de faim...';
+            break;
+        case 'thirst':
+            icon.textContent = '💧';
+            title.textContent = 'Déshydratation';
+            message.textContent = 'Vous êtes en train de mourir de soif...';
+            break;
         default:
             icon.textContent = '💀';
             title.textContent = 'Inconscient';
