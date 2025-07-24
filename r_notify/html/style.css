@@ -1,0 +1,144 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+#notification-container {
+    position: fixed;
+    bottom: 250px;
+    left: 20px;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100vh - 100px);
+    overflow: hidden;
+}
+
+.notification {
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    border: 1px solid #404040;
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 300px;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification.hide {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 0.3s ease-in-out;
+    margin-bottom: -80px;
+}
+
+.notification::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-color, #007acc);
+    border-radius: 4px 0 0 4px;
+}
+
+.notification.success::before {
+    background: #4caf50;
+}
+
+.notification.error::before {
+    background: #f44336;
+}
+
+.notification.warning::before {
+    background: #ff9800;
+}
+
+.notification.info::before {
+    background: #2196f3;
+}
+
+.notification-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+    color: #ffffff;
+}
+
+.notification-message {
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+    word-wrap: break-word;
+}
+
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--accent-color, #007acc);
+    border-radius: 0 0 8px 8px;
+    transition: width linear;
+}
+
+.notification.success .notification-progress {
+    background: #4caf50;
+}
+
+.notification.error .notification-progress {
+    background: #f44336;
+}
+
+.notification.warning .notification-progress {
+    background: #ff9800;
+}
+
+.notification.info .notification-progress {
+    background: #2196f3;
+}
+
+/* Animation pour le stack */
+.notification-stack-animation {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #notification-container {
+        right: 10px;
+        left: 10px;
+    }
+    
+    .notification {
+        min-width: auto;
+        max-width: none;
+    }
+}
