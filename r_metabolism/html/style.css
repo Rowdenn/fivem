@@ -13,7 +13,8 @@ body {
     position: fixed;
     left: 300px;
     bottom: 11px;
-    flex-direction: row;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
     z-index: 100;
 }
@@ -23,11 +24,12 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    transform: rotate(180deg);
 }
 
 .stat-progress {
     position: relative;
-    width: 8px;
+    width: 12px;
     height: 120px;
 }
 
@@ -40,24 +42,25 @@ body {
 
 .progress-fill {
     position: absolute;
-    bottom: 1px;
+    bottom: 0;
     left: 1px;
-    height: calc(100% - 2px);
+    width: calc(100% - 2px);
+    height: 0%;
     border-radius: 3px;
     transition: height 0.5s ease;
-    background-color: linear-gradiant(180deg, #4caf50, #8BC34A);
+    background: linear-gradient(0deg, #4caf50, #8BC34A);
 }
 
 .hunger-fill {
-    background-color: linear-gradient(180deg, #FFC107, #FF9800);
+    background: linear-gradient(0deg, #FFC107, #FF9800);
 }
 
 .thirst-fill {
-    background-color: linear-gradient(180deg, #03DAC6 #2196F3);
+    background: linear-gradient(0deg, #03DAC6, #2196F3);
 }
 
 .progress-fill.low {
-    background: linear-gradient(180deg, #FF5722, #F44336) !important;
+    background: linear-gradient(0deg, #FF5722, #F44336) !important;
     animation: pulse 1s infinite;
 }
 

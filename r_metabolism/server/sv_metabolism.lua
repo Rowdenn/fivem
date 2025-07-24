@@ -17,18 +17,18 @@ AddEventHandler('r_metabolism:playerLoaded', function()
         }
     end
 
-    TriggerClientEvent('r_metabolism:updateValues', source, result)
+    TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
 end)
 
 -- Met à jour les valeurs de métabolisme toutes les 30 secondes
 Citizen.CreateThread(function() 
     while true do
-        Citizen.Wait(30000) -- Update toutes les 30 secondes
+        Citizen.Wait(60000) -- Update toutes les 30 secondes
 
         for playerId, data in pairs(playerMetabolism) do
             if GetPlayerPing(playerId) > 0 then
                 data.hunger = math.max(0, data.hunger - 1)
-                data.thirst = math.max(0, data.thirst - 1)
+                data.thirst = math.max(0, data.thirst - 2)
 
                 TriggerClientEvent('r_metabolism:updateValues', playerId, data)
 
@@ -61,6 +61,21 @@ AddEventHandler('r_metabolism:updateValue', function(valueType, amount)
     end
 end)
 
+RegisterServerEvent('r_metabolism:setValues')
+AddEventHandler('r_metabolism:setValues', function(hunger, thirst)
+    local source = source
+
+    if playerMetabolism[source] then
+        Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
+            hunger,
+            thirst,
+            GetPlayerIdentifier(source, 0)
+        })
+
+        TriggerClientEvent('r_metabolism:updateValues', source, playerMetabolism[source])
+    end
+end)
+
 AddEventHandler('playerDropped', function(reason)
     local source = source
 
@@ -72,10 +87,10 @@ AddEventHandler('playerDropped', function(reason)
     
 end)
 
-exports('addHunger', function(playerId, amount)
+exports('addHunger', function(amount)
     TriggerEvent('r_metabolism:updateValue', 'hunger', amount)
 end)
 
-exports('addThirst', function(playerId, amount)
+exports('addThirst', function(amount)
     TriggerEvent('r_metabolism:updateValue', 'thirst', amount)
 end)

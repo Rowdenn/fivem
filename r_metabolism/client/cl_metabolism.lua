@@ -17,7 +17,7 @@ AddEventHandler('r_metabolism:updateValues', function(data)
     thirst = data.thirst
 
     SendNUIMessage({
-        action = 'updateValues',
+        type = 'updateValues',
         hunger = hunger,
         thirst = thirst
     })
@@ -25,27 +25,16 @@ end)
 
 RegisterNetEvent('r_metabolism:lowValues')
 AddEventHandler('r_metabolism:lowValues', function()
-    local player = PlayerPedId()
-
+    print('Hunger:', hunger, 'Thirst:', thirst)
     if hunger == 0 then
-        local health = GetEntityHealth(player)
-        if health > 0 then
-            SetEntityHealth(player, health - 10)
-        end
+        exports['r_coma']:StartDeathProcess('hunger', 40)
+        Citizen.Wait(40000)  -- Wait 40 seconds
+        TriggerServerEvent('r_metabolism:setValues', 50, 50)
     end
 
     if thirst == 0 then
-        local health = GetEntityHealth(player)
-        if health > 0 then
-            SetEntityHealth(player, health - 10)
-        end
+        exports['r_coma']:StartDeathProcess('thirst', 40)
+        Citizen.Wait(40000)  -- Wait 40 seconds
+        TriggerServerEvent('r_metabolism:setValues', 50, 50)
     end
-end)
-
-exports('getHunger', function()
-    return hunger
-end)
-
-exports('getThirst', function()
-    return thirst
 end)

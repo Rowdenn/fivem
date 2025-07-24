@@ -5,6 +5,10 @@ author 'Rowden'
 description 'Metabolism System'
 version '1.0.0'
 
+dependencies {
+    'r_coma'
+} 
+
 client_scripts {
     'client/*.lua'
 }

@@ -4,15 +4,15 @@ window.addEventListener('message', function(event) {
 
     switch(data.type) {
         case 'updateValues':
-            updateBar(data.hunger);
-            updateBar(data.thirst);
+            updateBar('hunger', data.hunger);
+            updateBar('thirst', data.thirst);
             break;
     }
 })
 
 function updateBar(type, value) {
     const bar = document.getElementById(`${type}-bar`);
-    bar.style.width = value + '%';
+    bar.style.height = value + '%';
 
     if (value <= 20) {
         bar.classList.add('low');
