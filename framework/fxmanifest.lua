@@ -12,8 +12,7 @@ shared_scripts {
     'shared/main.lua',
     'shared/utils/debug.lua',
     'shared/utils/events.lua',
-    'shared/utils/utils.lua',
-    'shared/utils/noclip.lua'
+    'shared/utils/utils.lua'
 }
 
 server_scripts {
