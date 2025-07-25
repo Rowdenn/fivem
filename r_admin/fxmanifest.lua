@@ -6,9 +6,9 @@ description 'Admin System'
 version '1.0.0'
 
 client_scripts {
-    'client/client.lua'
+    'client/*.lua'
 }
 
 server_scripts {
-    'server/server.lua'
+    'server/*.lua'
 }
