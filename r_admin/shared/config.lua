@@ -1,21 +1,21 @@
-Config = {}
+AdminConfig = {}
 
 -- Configuration des permissions (3 niveaux uniquement)
-Config.Permissions = {
+AdminConfig.Permissions = {
     MODERATOR = 1, -- Modérateur
     ADMIN = 2,     -- Administrateur
     OWNER = 3      -- Propriétaire
 }
 
 -- Configuration du menu
-Config.Menu = {
+AdminConfig.Menu = {
     openKey = 167,  -- F6
     closeKey = 177, -- Backspace
 }
 
 -- Configuration des actions par niveau de permission
-Config.MenuActions = {
-    [Config.Permissions.MODERATOR] = {
+AdminConfig.MenuActions = {
+    [AdminConfig.Permissions.MODERATOR] = {
         'teleport_to_player',
         'teleport_player_to_me',
         'spectate_player',
@@ -23,7 +23,7 @@ Config.MenuActions = {
         'freeze_player',
         'noclip'
     },
-    [Config.Permissions.ADMIN] = {
+    [AdminConfig.Permissions.ADMIN] = {
         'teleport_to_player',
         'teleport_player_to_me',
         'spectate_player',
@@ -38,7 +38,7 @@ Config.MenuActions = {
         'revive_player',
         'heal_player'
     },
-    [Config.Permissions.OWNER] = {
+    [AdminConfig.Permissions.OWNER] = {
         'teleport_to_player',
         'teleport_player_to_me',
         'spectate_player',
@@ -59,8 +59,15 @@ Config.MenuActions = {
     }
 }
 
+AdminConfig.CommandsPermissions = {
+    [AdminConfig.Permissions.MODERATOR] = {
+        'getcoords',
+        'tp'
+    }
+}
+
 -- Messages d'administration
-Config.Messages = {
+AdminConfig.Messages = {
     no_permission = "Vous n'avez pas les permissions pour utiliser cette commande",
     player_not_found = "Joueur introuvable",
     action_success = "Action effectuée avec succès"
