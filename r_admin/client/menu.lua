@@ -71,11 +71,6 @@ function OpenPlayersMainMenu()
         local playerName = GetPlayerName(playerId)
         local playerServerId = GetPlayerServerId(playerId)
 
-        -- table.insert(players, {
-        --     source = playerServerId,
-        --     name = playerName
-        -- })
-
         playersMenu:AddButton({
             icon = '👤',
             label = playerName .. ' [' .. playerServerId .. ']',
