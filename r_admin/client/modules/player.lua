@@ -24,46 +24,6 @@ function GetReasonForAction(actionType, targetId, targetName)
     end)
 end
 
-function GetWeaponForPlayer(targetId, targetName)
-    Citizen.CreateThread(function()
-        AddTextEntry('FMMC_MPM_NA', 'Arme à donner à ' .. targetName .. ' (ex: WEAPON_PISTOL):')
-        DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "WEAPON_", "", "", "", 50)
-
-        while UpdateOnscreenKeyboard() == 0 do
-            DisableAllControlActions(0)
-            Wait(0)
-        end
-
-        if GetOnscreenKeyboardResult() then
-            local weaponName = GetOnscreenKeyboardResult()
-            if weaponName and weaponName ~= '' then
-                GetAmmoForWeapon(targetId, targetName, weaponName:upper())
-            end
-        end
-    end)
-end
-
-function GetAmmoForWeapon(targetId, targetName, weaponName)
-    Citizen.CreateThread(function()
-        AddTextEntry('FMMC_MPM_NA', 'Munitions pour ' .. weaponName .. ' :')
-        DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "250", "", "", "", 10)
-
-        while UpdateOnscreenKeyboard() == 0 do
-            DisableAllControlActions(0)
-            Wait(0)
-        end
-
-        if GetOnscreenKeyboardResult() then
-            local ammoCount = GetOnscreenKeyboardResult()
-            local ammo = tonumber(ammoCount) or 250
-
-            TriggerServerEvent('r_admin:giveWeaponToPlayer', targetId, weaponName, ammo)
-            TriggerServerEvent('r_admin:showNotification',
-                'Arme ' .. weaponName .. ' donnée à ' .. targetName .. ' avec ' .. ammo .. ' munitions', 'success')
-        end
-    end)
-end
-
 function GetMoneyAmount(targetId, targetName, moneyType)
     local typeLabel = moneyType == 'cash' and 'argent cash' or 'argent en banque'
 
