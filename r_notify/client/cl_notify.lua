@@ -21,3 +21,5 @@ RegisterNetEvent('r_notify:showNotification')
 AddEventHandler('r_notify:showNotification', function(data)
     ShowNotification(data)
 end)
+
+exports('ShowNotification', ShowNotification)
