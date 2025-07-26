@@ -7,14 +7,16 @@ version '1.0.0'
 
 shared_script "shared/config.lua"
 
+shared_scripts {
+    'shared/config.lua'
+}
+
 client_scripts {
-    'config.lua',
     '@menuv/menuv.lua',
     'client/*.lua'
 }
 
 server_scripts {
-    'config.lua',
     'server/*.lua'
 }
 
