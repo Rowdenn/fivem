@@ -4,7 +4,7 @@
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 local assert = assert
@@ -34,7 +34,7 @@ local Wait = assert(Citizen.Wait)
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 Config = {
@@ -82,7 +82,7 @@ _ENV.Config = Config
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 local assert = assert
@@ -509,7 +509,7 @@ _ENV.Utilities = Utilities
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 local assert = assert
@@ -782,7 +782,7 @@ _G.CreateMenuItem = CreateMenuItem
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 local assert = assert
@@ -1863,7 +1863,7 @@ _G.CreateMenu = CreateMenu
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 local assert = assert

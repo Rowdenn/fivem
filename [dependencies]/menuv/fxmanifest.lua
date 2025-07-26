@@ -4,7 +4,7 @@
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: Thymon Arens <contact@arens.io>
 -- Name: MenuV
--- Version: 1.4.1
+-- Version: 1.5-beta
 -- Description: FiveM menu library for creating menu's
 ----------------------- [ MenuV ] -----------------------
 fx_version 'cerulean'
@@ -12,7 +12,7 @@ game 'gta5'
 lua54 'yes'
 
 name 'MenuV'
-version '1.4.1'
+version '1.5-beta'
 description 'FiveM menu library for creating menu\'s'
 author 'ThymonA'
 contact 'contact@arens.io'
