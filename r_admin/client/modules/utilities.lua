@@ -1,86 +1,40 @@
-function GetCoordinatesForTeleport()
+function TeleportToWaypoint()
+    local waypoint = GetFirstBlipInfoId(8)
+
+    if not DoesBlipExist(waypoint) then
+        TriggerServerEvent('r_admin:showNotification', 'Aucun waypoint trouvé sur la carte', 'error')
+        return
+    end
+
+    local coords = GetBlipCoords(waypoint)
+    local x, y = coords.x, coords.y
+    local z = 100.0
+
+    local player = PlayerPedId()
+    local isInVehicle = IsPedInAnyVehicle(player, false)
+
+    StartPlayerTeleport(PlayerId(), x, y, z, 0.0, isInVehicle, true)
+
     Citizen.CreateThread(function()
-        -- Coordonnée X
-        AddTextEntry('FMMC_MPM_NA', 'Coordonnée X :')
-        DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "0.0", "", "", "", 10)
-
-        while UpdateOnscreenKeyboard() == 0 do
-            DisableAllControlActions(0)
-            Wait(0)
+        while IsPlayerTeleportActive() do
+            Citizen.Wait(0)
         end
 
-        if not GetOnscreenKeyboardResult() then return end
-        local x = tonumber(GetOnscreenKeyboardResult())
-        if not x then return end
-
-        -- Coordonnée Y
-        AddTextEntry('FMMC_MPM_NA', 'Coordonnée Y :')
-        DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "0.0", "", "", "", 10)
-
-        while UpdateOnscreenKeyboard() == 0 do
-            DisableAllControlActions(0)
-            Wait(0)
-        end
-
-        if not GetOnscreenKeyboardResult() then return end
-        local y = tonumber(GetOnscreenKeyboardResult())
-        if not y then return end
-
-        -- Coordonnée Z
-        AddTextEntry('FMMC_MPM_NA', 'Coordonnée Z :')
-        DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "0.0", "", "", "", 10)
-
-        while UpdateOnscreenKeyboard() == 0 do
-            DisableAllControlActions(0)
-            Wait(0)
-        end
-
-        if not GetOnscreenKeyboardResult() then return end
-        local z = tonumber(GetOnscreenKeyboardResult())
-        if not z then return end
-
-        SetEntityCoords(PlayerPedId(), x, y, z)
-        TriggerServerEvent('r_admin:showNotification', 'Téléporté aux coordonnées: ' .. x .. ', ' .. y .. ', ' .. z,
-            'success')
-    end)
-end
-
-function GetWeaponForSelf()
-    Citizen.CreateThread(function()
-        AddTextEntry('FMMC_MPM_NA', 'Arme à recevoir (ex: WEAPON_PISTOL):')
-        DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "WEAPON_", "", "", "", 50)
-
-        while UpdateOnscreenKeyboard() == 0 do
-            DisableAllControlActions(0)
-            Wait(0)
-        end
-
-        if GetOnscreenKeyboardResult() then
-            local weaponName = GetOnscreenKeyboardResult():upper()
-            if weaponName and weaponName ~= '' and weaponName ~= 'WEAPON_' then
-                -- Demander les munitions
-                AddTextEntry('FMMC_MPM_NA', 'Munitions pour ' .. weaponName .. ' :')
-                DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", "250", "", "", "", 10)
-
-                while UpdateOnscreenKeyboard() == 0 do
-                    DisableAllControlActions(0)
-                    Wait(0)
-                end
-
-                if GetOnscreenKeyboardResult() then
-                    local ammo = tonumber(GetOnscreenKeyboardResult()) or 250
-                    local playerPed = PlayerPedId()
-                    local weaponHash = GetHashKey(weaponName)
-
-                    GiveWeaponToPed(playerPed, weaponHash, ammo, false, true)
-
-                    TriggerEvent('chat:addMessage', {
-                        color = { 0, 255, 0 },
-                        args = { '[Admin]', 'Arme ' .. weaponName .. ' reçue avec ' .. ammo .. ' munitions !' }
-                    })
+        local heightAboveGround = GetEntityHeightAboveGround(PlayerPedId())
+        if heightAboveGround > 5.0 then
+            local playerCoords = GetEntityCoords(PlayerPedId())
+            local found, groundZ = GetGroundZFor_3dCoord(playerCoords.x, playerCoords.y, playerCoords.z, false)
+            if found then
+                if isInVehicle then
+                    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+                    SetEntityCoords(vehicle, playerCoords.x, playerCoords.y, groundZ + 1.0)
+                else
+                    SetEntityCoords(PlayerPedId(), playerCoords.x, playerCoords.y, groundZ + 1.0)
                 end
             end
         end
+
+        TriggerServerEvent('r_admin:showNotification', 'Téléporté au waypoint', 'success')
     end)
 end
 
