@@ -3,18 +3,7 @@ local currentPermissionLevel = 0
 local isMenuOpen = false
 local isMenuCreated = false
 
-function ShowNotification(message, type)
-    local player = source
-    exports['r_notify']:ShowNotification(player, {
-        message = message,
-        type = type,
-        duration = 5000
-    })
-end
-
-function ShowPlayerList()
-    TriggerServerEvent('r_admin:getPlayerList')
-end
+-- local players = {}
 
 function CreateAdminMenu(permissionLevel)
     if isMenuCreated and currentPermissionLevel == permissionLevel then
@@ -82,6 +71,11 @@ function OpenPlayersMainMenu()
         local playerName = GetPlayerName(playerId)
         local playerServerId = GetPlayerServerId(playerId)
 
+        -- table.insert(players, {
+        --     source = playerServerId,
+        --     name = playerName
+        -- })
+
         playersMenu:AddButton({
             icon = '👤',
             label = playerName .. ' [' .. playerServerId .. ']',
@@ -104,7 +98,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Go to',
         description = 'Se téléporter vers ' .. targetName,
         select = function()
-            TriggerServerEvent('admin:gotoPlayer', targetId)
+            TriggerServerEvent('r_admin:gotoPlayer', targetId)
         end
     })
 
@@ -113,7 +107,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Bring',
         description = 'Amener ' .. targetName .. ' vers vous',
         select = function()
-            TriggerServerEvent('admin:bringPlayer', targetId)
+            TriggerServerEvent('r_admin:bringPlayer', targetId)
         end
     })
 
@@ -122,7 +116,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Heal',
         description = 'Soigner ' .. targetName,
         select = function()
-            TriggerServerEvent('admin:healPlayer', targetId)
+            TriggerServerEvent('r_admin:healPlayer', targetId)
         end
     })
 
@@ -131,7 +125,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Kick',
         description = 'Expulser ' .. targetName,
         select = function()
-            -- GetReasonForAction('kick', targetId, targetName)
+            GetReasonForAction('kick', targetId, targetName)
         end
     })
 
@@ -140,7 +134,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Ban',
         description = 'Bannir ' .. targetName,
         select = function()
-            -- GetReasonForAction('ban', targetId, targetName)
+            GetReasonForAction('ban', targetId, targetName)
         end
     })
 
@@ -149,7 +143,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Give weapon',
         description = 'Donner une arme à ' .. targetName,
         select = function()
-            -- GetWeaponForPlayer(targetId, targetName)
+            ShowWeaponCategories(targetId, targetName)
         end
     })
 
@@ -158,7 +152,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Give money',
         description = 'Donner de l\'argent cash à ' .. targetName,
         select = function()
-            -- GetMoneyAmount(targetId, targetName, 'cash')
+            GetMoneyAmount(targetId, targetName, 'cash')
         end
     })
 
@@ -167,7 +161,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Give bank money',
         description = 'Donner de l\'argent en banque à ' .. targetName,
         select = function()
-            -- GetMoneyAmount(targetId, targetName, 'bank')
+            GetMoneyAmount(targetId, targetName, 'bank')
         end
     })
 
@@ -176,7 +170,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Voir l\'inventaire',
         description = 'Consulter l\'inventaire de ' .. targetName,
         select = function()
-            TriggerServerEvent('admin:viewInventory', targetId)
+            TriggerServerEvent('r_admin:viewInventory', targetId)
         end
     })
 
@@ -192,7 +186,7 @@ function OpenVehicleMainMenu()
         label = 'Liste des véhicules (spawn)',
         description = 'Faire apparaître un véhicule',
         select = function()
-            OpenVehicleCategoriesMenu()
+            ShowVehicleCategories()
         end
     })
 
@@ -346,7 +340,7 @@ function OpenUtilitiesMenu()
         label = 'Give une arme',
         description = 'Vous donner une arme',
         select = function()
-            -- GetWeaponForSelf()
+            ShowWeaponCategories()
         end
     })
 
@@ -397,11 +391,6 @@ AddEventHandler('r_admin:openMenu', function(permissionLevel)
         AdminMenu:Open()
         isMenuOpen = true
     end
-end)
-
-RegisterNetEvent('r_admin:showNotification')
-AddEventHandler('r_admin:showNotification', function(message, type)
-    ShowNotification(message, type)
 end)
 
 Citizen.CreateThread(function()
