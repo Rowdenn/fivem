@@ -1,3 +1,13 @@
+RegisterServerEvent('r_admin:showNotification')
+AddEventHandler('r_admin:showNotification', function(message, type)
+    local player = source
+    exports['r_notify']:ShowNotificationToPlayer(player, {
+        message = message,
+        type = type,
+        duration = 5000
+    })
+end)
+
 RegisterServerEvent('r_admin:kickPlayer')
 AddEventHandler('r_admin:kickPlayer', function(target, reason)
     local admin = source
