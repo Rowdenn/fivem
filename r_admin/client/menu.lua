@@ -197,49 +197,6 @@ function OpenVehicleMainMenu()
     vehicleMenu:Open()
 end
 
-function OpenVehicleCategoriesMenu()
-    local categoriesMenu = MenuV:CreateMenu("Catégories de véhicules", false, "topright", 255, 0, 0,
-        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
-
-    categoriesMenu:AddButton({
-        icon = '🏎️',
-        label = 'Sportives',
-        description = 'Véhicules de sport',
-        select = function()
-            -- OpenVehicleListMenu('sportives')
-        end
-    })
-
-    categoriesMenu:AddButton({
-        icon = '🏁',
-        label = 'Sportives Classic',
-        description = 'Voitures de sport classiques',
-        select = function()
-            -- OpenVehicleListMenu('sportclassic')
-        end
-    })
-
-    categoriesMenu:AddButton({
-        icon = '🚙',
-        label = 'Citadines',
-        description = 'Véhicules urbains',
-        select = function()
-            -- OpenVehicleListMenu('compacts')
-        end
-    })
-
-    categoriesMenu:AddButton({
-        icon = '🚜',
-        label = 'Off-Road',
-        description = 'Véhicules tout-terrain',
-        select = function()
-            -- OpenVehicleListMenu('offroad')
-        end
-    })
-
-    categoriesMenu:Open()
-end
-
 function OpenVehicleModificationMenu()
     local modMenu = MenuV:CreateMenu("Modifier véhicule", false, "topright", 255, 0, 0,
         "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
@@ -304,20 +261,11 @@ function OpenUtilitiesMenu()
         "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
 
     utilitiesMenu:AddButton({
-        icon = '📍',
-        label = 'Se téléporter à des coordonnées',
-        description = 'Entrer des coordonnées manuellement',
-        select = function()
-            -- GetCoordinatesForTeleport()
-        end
-    })
-
-    utilitiesMenu:AddButton({
         icon = '🗺️',
         label = 'Se téléporter au waypoint',
         description = 'Aller au marqueur sur la carte',
         select = function()
-            -- TeleportToWaypoint()
+            TeleportToWaypoint()
         end
     })
 
