@@ -1,10 +1,13 @@
 local Framework = exports['framework']:GetFramework()
 local playerPermissions = {}
 
-function HasPermission(source, requiredLevel)
-    local playerLevel = Framework.Player:GetPermissionsLevel(source)
-    return playerLevel >= requiredLevel
-end
+RegisterServerEvent('r_admin:getPermissionLevel')
+AddEventHandler('r_admin:getPermissionLevel', function()
+    local player = source
+    local permissionLevel = Framework.Player:GetPermissionsLevel(player)
+
+    TriggerClientEvent('r_admin:receivePermissionLevel', player, permissionLevel)
+end)
 
 RegisterServerEvent('r_admin:checkPermissions')
 AddEventHandler('r_admin:checkPermissions', function()
@@ -41,6 +44,3 @@ AddEventHandler('r_admin:refreshPermissions', function()
         playerPermissions[source] = nil
     end
 end)
-
--- Exports pour les autres ressources
-exports('HasPermission', HasPermission)
