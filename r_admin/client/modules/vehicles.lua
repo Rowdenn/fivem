@@ -268,7 +268,8 @@ function ShowVehicleSearch()
                     searchMenu:Close()
                     ShowSearchResults(searchTerm)
                 else
-                    TriggerServerEvent('r_admin:showNotification', 'Veuillez saisir au moins 2 caractères', 'error')
+                    TriggerServerEvent('r_admin:client:showNotification', 'Veuillez saisir au moins 2 caractères',
+                        'error')
                 end
             end
         end
@@ -366,7 +367,7 @@ function SpawnVehicleForPlayer(vehicleModel, vehicleName)
 
     SetModelAsNoLongerNeeded(vehicleHash)
 
-    TriggerServerEvent('r_admin:showNotification', vehicleName .. ' spawn avec succès', 'success')
+    TriggerServerEvent('r_admin:client:showNotification', vehicleName .. ' spawn avec succès', 'success')
 end
 
 CreateThread(function()

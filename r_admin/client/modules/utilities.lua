@@ -2,7 +2,7 @@ function TeleportToWaypoint()
     local waypoint = GetFirstBlipInfoId(8)
 
     if not DoesBlipExist(waypoint) then
-        TriggerServerEvent('r_admin:showNotification', 'Aucun waypoint trouvé sur la carte', 'error')
+        TriggerServerEvent('r_admin:client:showNotification', 'Aucun waypoint trouvé sur la carte', 'error')
         return
     end
 
@@ -17,7 +17,7 @@ function TeleportToWaypoint()
     local isInVehicle = IsPedInAnyVehicle(player, false)
 
     TriggerEvent('r_admin:teleportPlayer', teleportCoords)
-    TriggerServerEvent('r_admin:showNotification', 'Téléporté au waypoint', 'success')
+    TriggerServerEvent('r_admin:client:showNotification', 'Téléporté au waypoint', 'success')
 end
 
 function GetMoneyAmountForSelf(moneyType)

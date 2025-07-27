@@ -166,11 +166,11 @@ function ShowWeaponsInCategory(targetId, targetName, category)
                     local weaponHash = GetHashKey(weapon.hash)
 
                     GiveWeaponToPed(playerPed, weaponHash, weapon.ammo, false, true)
-                    TriggerServerEvent('r_admin:showNotification',
+                    TriggerServerEvent('r_admin:client:showNotification',
                         'Arme ' .. weapon.name .. ' reçue avec ' .. weapon.ammo .. ' munitions', "success")
                 else
                     TriggerServerEvent('r_admin:giveWeaponToPlayer', targetId, weapon.hash, weapon.ammo)
-                    TriggerServerEvent('r_admin:showNotification',
+                    TriggerServerEvent('r_admin:client:showNotification',
                         'Arme ' .. weapon.name .. ' donnée à ' .. targetName .. ' avec ' .. weapon.ammo .. ' munitions',
                         "success")
                 end

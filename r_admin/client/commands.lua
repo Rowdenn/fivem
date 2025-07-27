@@ -19,7 +19,7 @@ function RegisterProtectedCommand(commandName, handler)
         end
 
         if not HasPermissionClient(requiredLevel) then
-            TriggerServerEvent('r_admin:showNotification',
+            TriggerServerEvent('r_admin:client:showNotification',
                 'Vous ne pouvez pas exécuter cette commande', 'error')
             return
         end
@@ -87,13 +87,13 @@ RegisterProtectedCommand('tp', function(source, args)
 
     -- Validation
     if not teleportCoords.x or not teleportCoords.y or not teleportCoords.z then
-        TriggerServerEvent('r_admin:showNotification', 'Format invalide. Utilisez: x y z, x,y,z ou vector3(x,y,z)',
+        TriggerServerEvent('r_admin:client:showNotification', 'Format invalide. Utilisez: x y z, x,y,z ou vector3(x,y,z)',
             'error')
         return
     end
 
     if math.abs(teleportCoords.x) > 10000 or math.abs(teleportCoords.y) > 10000 or teleportCoords.z < -500 or teleportCoords.z > 2000 then
-        TriggerServerEvent('r_admin:showNotification', 'Coordonnées hors limites de la carte', 'error')
+        TriggerServerEvent('r_admin:client:showNotification', 'Coordonnées hors limites de la carte', 'error')
         return
     end
 
@@ -117,7 +117,7 @@ RegisterProtectedCommand('getcoords', function(source, args, rawCommand)
         text = coordsText
     })
 
-    TriggerServerEvent('r_admin:showNotification',
+    TriggerServerEvent('r_admin:client:showNotification',
         'Coordonnées copiées: ' .. coordsText, 'success')
 end)
 

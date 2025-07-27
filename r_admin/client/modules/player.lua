@@ -17,7 +17,7 @@ function GetReasonForAction(actionType, targetId, targetName)
                     TriggerServerEvent('r_admin:banPlayer', targetId, reason)
                 end
 
-                TriggerServerEvent('r_admin:showNotification',
+                TriggerServerEvent('r_admin:client:showNotification',
                     actionType:upper() .. ' de ' .. targetName .. ' effectué', 'success')
             end
         end
@@ -43,7 +43,8 @@ function GetMoneyAmount(targetId, targetName, moneyType)
             if money and money > 0 then
                 print("Argent donné: ", money)
                 TriggerServerEvent('r_admin:giveMoney', targetId, moneyType, money)
-                TriggerServerEvent('r_admin:showNotification', money .. '$ (' .. typeLabel .. ') donné à ' .. targetName,
+                TriggerServerEvent('r_admin:client:showNotification',
+                    money .. '$ (' .. typeLabel .. ') donné à ' .. targetName,
                     'success')
             end
         end
