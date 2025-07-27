@@ -1,14 +1,3 @@
-function GetPlayerFromServerId(serverId)
-    for playerId = 0, 255 do
-        if NetworkIsPlayerActive(playerId) then
-            if GetPlayerServerId(playerId) == serverId then
-                return playerId
-            end
-        end
-    end
-    return -1
-end
-
 function GetReasonForAction(actionType, targetId, targetName)
     Citizen.CreateThread(function()
         AddTextEntry('FMMC_MPM_NA', 'Raison pour ' .. actionType .. ' ' .. targetName .. ' :')
