@@ -1,0 +1,28 @@
+RegisterServerEvent('r_admin:bringPlayer')
+AddEventHandler('r_admin:bringPlayer', function(targetServerId, adminCoords)
+    local source = source
+
+    if not HasPermissionServer(source, 'bring') then
+        return
+    end
+
+    local target = tonumber(targetServerId)
+    if not target or not GetPlayerPed(target) then
+        TriggerClientEvent('r_admin:showNotification', source, 'Joueur introuvable', 'error')
+        return
+    end
+
+    local teleportCoords = {
+        x = adminCoords.x + 2.0,
+        y = adminCoords.y + 2.0,
+        z = adminCoords.z + 1.0
+    }
+
+    TriggerClientEvent('r_admin:teleportPlayer', target, teleportCoords)
+
+    local targetName = GetPlayerName(target)
+    local adminName = GetPlayerName(source)
+
+    TriggerEvent('r_admin:showNotification', source, 'Joueur ' .. targetName .. ' téléporté vers vous', 'success')
+    TriggerEvent('r_admin:showNotification', target, 'Vous avez été téléporté par ' .. adminName, 'info')
+end)
