@@ -20,7 +20,7 @@ AddEventHandler('r_metabolism:playerLoaded', function()
         return
     end
 
-    Framework.Database:Query('SELECT hunger, thirst FROM users WHERE identifier = ?', {identifier}, function(result)
+    Framework.Database:Query('SELECT hunger, thirst FROM users WHERE identifier = ?', { identifier }, function(result)
         if DoesPlayerExist(source) then
             if source ~= nil then
                 playerMetabolism[source] = {
@@ -37,7 +37,7 @@ AddEventHandler('r_metabolism:playerLoaded', function()
 end)
 
 -- Met à jour les valeurs de métabolisme toutes les minutes
-Citizen.CreateThread(function() 
+Citizen.CreateThread(function()
     while true do
         Citizen.Wait(Config.updateInterval) -- Update toutes les minutes
 
@@ -53,7 +53,7 @@ Citizen.CreateThread(function()
                         duration = 5000
                     })
                 end
-                
+
                 if data.thirst == 10 then
                     exports['r_notify']:ShowNotificationToPlayer(playerId, {
                         message = "Vous avez très soif",
@@ -77,7 +77,7 @@ end)
 RegisterServerEvent('r_metabolism:updateValue')
 AddEventHandler('r_metabolism:updateValue', function(valueType, amount)
     local source = source
-    
+
     if playerMetabolism[source] then
         if valueType == 'hunger' then
             playerMetabolism[source].hunger = math.min(100, math.max(0, playerMetabolism[source].hunger + amount))
@@ -134,13 +134,15 @@ end)
 
 exports('addHunger', function(playerId, amount)
     if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
-        TriggerEvent('r_metabolism:updateValue', 'hunger', amount)
+        playerMetabolism[playerId].hunger = math.min(100, math.max(0, playerMetabolism[playerId].hunger + amount))
+        TriggerClientEvent('r_metabolism:updateValues', playerId, playerMetabolism[playerId])
     end
 end)
 
 exports('addThirst', function(playerId, amount)
     if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
-        TriggerEvent('r_metabolism:updateValue', 'thirst', amount)
+        playerMetabolism[playerId].thirst = math.min(100, math.max(0, playerMetabolism[playerId].thirst + amount))
+        TriggerClientEvent('r_metabolism:updateValues', playerId, playerMetabolism[playerId])
     end
 end)
 
