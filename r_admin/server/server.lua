@@ -1,6 +1,15 @@
-RegisterServerEvent('r_admin:showNotification')
-AddEventHandler('r_admin:showNotification', function(message, type)
+RegisterServerEvent('r_admin:client:showNotification')
+AddEventHandler('r_admin:client:showNotification', function(message, type)
     local player = source
+    exports['r_notify']:ShowNotificationToPlayer(player, {
+        message = message,
+        type = type,
+        duration = 5000
+    })
+end)
+
+RegisterServerEvent('r_admin:server:showNotification')
+AddEventHandler('r_admin:server:showNotification', function(player, message, type)
     exports['r_notify']:ShowNotificationToPlayer(player, {
         message = message,
         type = type,
