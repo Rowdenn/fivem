@@ -3,8 +3,6 @@ local currentPermissionLevel = 0
 local isMenuOpen = false
 local isMenuCreated = false
 
--- local players = {}
-
 function CreateAdminMenu(permissionLevel)
     if isMenuCreated and currentPermissionLevel == permissionLevel then
         return
@@ -62,26 +60,7 @@ function CreateAdminMenu(permissionLevel)
 end
 
 function OpenPlayersMainMenu()
-    local playersMenu = MenuV:CreateMenu("Joueurs", false, "topright", 255, 0, 0,
-        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
-
-    -- Génère la liste dynamique des joueurs
-    local players = GetActivePlayers()
-    for _, playerId in ipairs(players) do
-        local playerName = GetPlayerName(playerId)
-        local playerServerId = GetPlayerServerId(playerId)
-
-        playersMenu:AddButton({
-            icon = '👤',
-            label = playerName .. ' [' .. playerServerId .. ']',
-            description = 'Actions sur ' .. playerName,
-            select = function()
-                OpenPlayerActionsMenu(playerServerId, playerName)
-            end
-        })
-    end
-
-    playersMenu:Open()
+    TriggerServerEvent('r_admin:getPlayersList')
 end
 
 function OpenPlayerActionsMenu(targetId, targetName)
@@ -93,7 +72,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Go to',
         description = 'Se téléporter vers ' .. targetName,
         select = function()
-            TriggerServerEvent('r_admin:gotoPlayer', targetId)
+            GoTo(targetId)
         end
     })
 
@@ -307,25 +286,6 @@ function OpenUtilitiesMenu()
 
     utilitiesMenu:Open()
 end
-
--- Event pour recevoir la liste des joueurs
-RegisterNetEvent('r_admin:receivePlayerList')
-AddEventHandler('r_admin:receivePlayerList', function(players)
-    local playerListMenu = MenuV:CreateMenu("Joueurs connectés", false, "topright", 255, 0, 0,
-        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
-
-    for _, player in pairs(players) do
-        playerListMenu:AddButton({
-            label = player.name .. ' (ID: ' .. player.id .. ')',
-            description = 'Sélectionner pour les actions',
-            select = function()
-                OpenPlayerActionsMenu(player)
-            end
-        })
-    end
-
-    playerListMenu:Open()
-end)
 
 RegisterNetEvent('r_admin:openMenu')
 AddEventHandler('r_admin:openMenu', function(permissionLevel)

@@ -1,3 +1,21 @@
+RegisterServerEvent('r_admin:getPlayersList')
+AddEventHandler('r_admin:getPlayersList', function()
+    local players = {}
+    local allPlayers = GetPlayers()
+
+    for _, playerId in ipairs(allPlayers) do
+        local playerName = GetPlayerName(playerId)
+        if playerName then
+            table.insert(players, {
+                id = tonumber(playerId),
+                name = playerName,
+            })
+        end
+    end
+
+    TriggerClientEvent('r_admin:receivePlayersList', source, players)
+end)
+
 RegisterServerEvent('r_admin:bringPlayer')
 AddEventHandler('r_admin:bringPlayer', function(targetServerId, adminCoords)
     local source = source

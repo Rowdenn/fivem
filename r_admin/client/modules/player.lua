@@ -50,11 +50,18 @@ function GetMoneyAmount(targetId, targetName, moneyType)
     end)
 end
 
-function BringPlayer(targetServerId)
+function BringPlayer(targetId)
     local player = PlayerPedId()
     local playerCoords = GetEntityCoords(player)
 
-    TriggerServerEvent('r_admin:bringPlayer', targetServerId, playerCoords)
+    TriggerServerEvent('r_admin:bringPlayer', targetId, playerCoords)
+end
+
+function GoTo(targetId)
+    local target = GetPlayerPed(targetId)
+    local targetCoords = GetEntityCoords(target)
+
+    TriggerEvent('r_admin:teleportPlayer', targetCoords)
 end
 
 RegisterNetEvent('r_admin:teleportPlayer')
@@ -83,4 +90,26 @@ AddEventHandler('r_admin:teleportPlayer', function(coords)
             end
         end
     end)
+end)
+
+RegisterNetEvent('r_admin:receivePlayersList')
+AddEventHandler('r_admin:receivePlayersList', function(players)
+    local playersMenu = MenuV:CreateMenu("Joueurs connectés", false, "topright", 255, 0, 0,
+        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
+
+    table.sort(players, function(a, b) return a.name < b.name end)
+
+    for _, player in pairs(players) do
+        playersMenu:AddButton({
+            icon = '👤',
+            label = player.name .. '[' .. player.id .. ']',
+            description = 'Actions sur ',
+            player.name,
+            select = function()
+                OpenPlayerActionsMenu(player.id, player.name)
+            end
+        })
+    end
+
+    playersMenu:Open()
 end)
