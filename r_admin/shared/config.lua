@@ -18,6 +18,8 @@ AdminConfig.MenuActions = {
     [1] = {
         'goto',
         'bring',
+        'feed',
+        'heal',
         'spectate_player',
         'kick_player',
         'freeze_player',
@@ -26,6 +28,8 @@ AdminConfig.MenuActions = {
     [2] = {
         'goto',
         'bring',
+        'feed',
+        'heal',
         'spectate_player',
         'kick_player',
         'freeze_player',
@@ -36,7 +40,6 @@ AdminConfig.MenuActions = {
         'god_mode',
         'invisible',
         'revive_player',
-        'heal_player'
     },
     [3] = {
         'goto',
@@ -51,7 +54,8 @@ AdminConfig.MenuActions = {
         'god_mode',
         'invisible',
         'revive_player',
-        'heal_player',
+        'feed',
+        'heal',
         'give_money',
         'server_management',
         'weather_control',
