@@ -102,7 +102,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Bring',
         description = 'Amener ' .. targetName .. ' vers vous',
         select = function()
-            TriggerServerEvent('r_admin:bringPlayer', targetId)
+            BringPlayer(targetId)
         end
     })
 

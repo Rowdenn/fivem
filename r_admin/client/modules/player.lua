@@ -1,3 +1,14 @@
+function GetPlayerFromServerId(serverId)
+    for playerId = 0, 255 do
+        if NetworkIsPlayerActive(playerId) then
+            if GetPlayerServerId(playerId) == serverId then
+                return playerId
+            end
+        end
+    end
+    return -1
+end
+
 function GetReasonForAction(actionType, targetId, targetName)
     Citizen.CreateThread(function()
         AddTextEntry('FMMC_MPM_NA', 'Raison pour ' .. actionType .. ' ' .. targetName .. ' :')
@@ -49,3 +60,38 @@ function GetMoneyAmount(targetId, targetName, moneyType)
         end
     end)
 end
+
+function BringPlayer(targetServerId)
+    local player = PlayerPedId()
+    local playerCoords = GetEntityCoords(player)
+
+    TriggerServerEvent('r_admin:bringPlayer', targetServerId, playerCoords)
+end
+
+RegisterNetEvent('r_admin:teleportPlayer')
+AddEventHandler('r_admin:teleportPlayer', function(coords)
+    local player = PlayerPedId()
+    local isInVehicle = IsPedInAnyVehicle(player, false)
+
+    StartPlayerTeleport(PlayerId(), coords.x, coords.y, coords.z, 0.0, isInVehicle, true)
+
+    Citizen.CreateThread(function()
+        while IsPlayerTeleportActive() do
+            Citizen.Wait(0)
+        end
+
+        local heightAboveGround = GetEntityHeightAboveGround(player)
+        if heightAboveGround > 5.0 then
+            local playerCoords = GetEntityCoords(player)
+            local found, groundZ = GetGroundZFor_3dCoord(playerCoords.x, playerCoords.y, playerCoords.z, false)
+            if found then
+                if isInVehicle then
+                    local vehicle = GetVehiclePedIsIn(player, false)
+                    SetEntityCoords(vehicle, playerCoords.x, playerCoords.y, groundZ + 1.0)
+                else
+                    SetEntityCoords(player, playerCoords.x, playerCoords.y, groundZ + 1.0)
+                end
+            end
+        end
+    end)
+end)

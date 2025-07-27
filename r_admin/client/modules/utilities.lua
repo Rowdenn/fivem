@@ -7,35 +7,17 @@ function TeleportToWaypoint()
     end
 
     local coords = GetBlipCoords(waypoint)
-    local x, y = coords.x, coords.y
-    local z = 100.0
+    local teleportCoords = {
+        x = coords.x,
+        y = coords.y,
+        z = 100.0
+    }
 
     local player = PlayerPedId()
     local isInVehicle = IsPedInAnyVehicle(player, false)
 
-    StartPlayerTeleport(PlayerId(), x, y, z, 0.0, isInVehicle, true)
-
-    Citizen.CreateThread(function()
-        while IsPlayerTeleportActive() do
-            Citizen.Wait(0)
-        end
-
-        local heightAboveGround = GetEntityHeightAboveGround(PlayerPedId())
-        if heightAboveGround > 5.0 then
-            local playerCoords = GetEntityCoords(PlayerPedId())
-            local found, groundZ = GetGroundZFor_3dCoord(playerCoords.x, playerCoords.y, playerCoords.z, false)
-            if found then
-                if isInVehicle then
-                    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-                    SetEntityCoords(vehicle, playerCoords.x, playerCoords.y, groundZ + 1.0)
-                else
-                    SetEntityCoords(PlayerPedId(), playerCoords.x, playerCoords.y, groundZ + 1.0)
-                end
-            end
-        end
-
-        TriggerServerEvent('r_admin:showNotification', 'Téléporté au waypoint', 'success')
-    end)
+    TriggerEvent('r_admin:teleportPlayer', teleportCoords)
+    TriggerServerEvent('r_admin:showNotification', 'Téléporté au waypoint', 'success')
 end
 
 function GetMoneyAmountForSelf(moneyType)

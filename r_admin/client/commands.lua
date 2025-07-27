@@ -1,7 +1,6 @@
 local playerPermissionLevel = 0
 
-function HasPermissions(requiredLevel)
-    print(playerPermissionLevel)
+function HasPermissionClient(requiredLevel)
     return playerPermissionLevel >= requiredLevel
 end
 
@@ -19,7 +18,7 @@ function RegisterProtectedCommand(commandName, handler)
             if requiredLevel > 0 then break end
         end
 
-        if not HasPermissions(requiredLevel) then
+        if not HasPermissionClient(requiredLevel) then
             TriggerServerEvent('r_admin:showNotification',
                 'Vous ne pouvez pas exécuter cette commande', 'error')
             return
@@ -39,7 +38,7 @@ RegisterProtectedCommand('tp', function(source, args)
     end
 
     local input = table.concat(args, ' '):gsub('%s+', ' '):gsub('^%s*(.-)%s*$', '%1')
-    local x, y, z
+    local teleportCoords = {}
 
     -- vector3(x, y, z)
     local vectorMatch = input:match('vector3%(([^%)]+)%)')
@@ -53,12 +52,12 @@ RegisterProtectedCommand('tp', function(source, args)
             end
         end
         if #coords == 3 then
-            x, y, z = coords[1], coords[2], coords[3]
+            teleportCoords.x, teleportCoords.y, teleportCoords.z = coords[1], coords[2], coords[3]
         end
     end
 
     -- x,y,z
-    if not x and input:find(',') then
+    if not teleportCoords.x and input:find(',') then
         local coords = {}
         for coord in string.gmatch(input, '([^,]+)') do
             local cleanCoord = coord:gsub('%s+', '')
@@ -68,12 +67,12 @@ RegisterProtectedCommand('tp', function(source, args)
             end
         end
         if #coords == 3 then
-            x, y, z = coords[1], coords[2], coords[3]
+            teleportCoords.x, teleportCoords.y, teleportCoords.z = coords[1], coords[2], coords[3]
         end
     end
 
     -- x y z
-    if not x then
+    if not teleportCoords.x then
         local coords = {}
         for coord in string.gmatch(input, '([^%s]+)') do
             if coord ~= '' then
@@ -82,42 +81,23 @@ RegisterProtectedCommand('tp', function(source, args)
             end
         end
         if #coords == 3 then
-            x, y, z = coords[1], coords[2], coords[3]
+            teleportCoords.x, teleportCoords.y, teleportCoords.z = coords[1], coords[2], coords[3]
         end
     end
 
     -- Validation
-    if not x or not y or not z then
+    if not teleportCoords.x or not teleportCoords.y or not teleportCoords.z then
         TriggerServerEvent('r_admin:showNotification', 'Format invalide. Utilisez: x y z, x,y,z ou vector3(x,y,z)',
             'error')
         return
     end
 
-    if math.abs(x) > 10000 or math.abs(y) > 10000 or z < -500 or z > 2000 then
+    if math.abs(teleportCoords.x) > 10000 or math.abs(teleportCoords.y) > 10000 or teleportCoords.z < -500 or teleportCoords.z > 2000 then
         TriggerServerEvent('r_admin:showNotification', 'Coordonnées hors limites de la carte', 'error')
         return
     end
 
-    -- Téléportation
-    local player = PlayerPedId()
-    local isInVehicle = IsPedInAnyVehicle(player, false)
-
-    StartPlayerTeleport(PlayerId(), x, y, z, 0.0, isInVehicle, false, true)
-
-    Citizen.CreateThread(function()
-        local timeout = 0
-        while IsPlayerTeleportActive() and timeout < 100 do
-            Citizen.Wait(50)
-            timeout = timeout + 1
-        end
-
-        if timeout >= 100 then
-            TriggerServerEvent('r_admin:showNotification', 'Timeout de téléportation', 'error')
-        else
-            TriggerServerEvent('r_admin:showNotification',
-                string.format('Téléporté: %.1f, %.1f, %.1f', x, y, z), 'success')
-        end
-    end)
+    TriggerEvent('r_admin:teleportPlayer', teleportCoords)
 end)
 
 RegisterProtectedCommand('getcoords', function(source, args, rawCommand)
