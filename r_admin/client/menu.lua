@@ -98,6 +98,15 @@ function OpenPlayerActionsMenu(targetId, targetName)
     })
 
     playerActionsMenu:AddButton({
+        icon = '🍗',
+        label = 'Feed',
+        description = 'Feed ' .. targetName,
+        select = function()
+            TriggerServerEvent('r_admin:feedPlayer', targetId)
+        end
+    })
+
+    playerActionsMenu:AddButton({
         icon = '👢',
         label = 'Kick',
         description = 'Expulser ' .. targetName,
