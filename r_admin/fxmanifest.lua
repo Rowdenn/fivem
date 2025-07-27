@@ -21,8 +21,9 @@ files {
 
 client_scripts {
     '@menuv/menuv.lua',
+    'client/utils/*.lua',
     'client/*.lua',
-    'client/modules/*.lua'
+    'client/modules/*.lua',
 }
 
 server_scripts {
