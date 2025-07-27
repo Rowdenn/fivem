@@ -1,6 +1,18 @@
 local Framework = exports['framework']:GetFramework()
 local playerPermissions = {}
 
+function HasPermissionServer(playerId, requiredAction)
+    local permissionLevel = Framework.Player:GetPermissionsLevel(playerId)
+
+    for _, action in ipairs(AdminConfig.MenuActions[permissionLevel]) do
+        if action == requiredAction then
+            return true
+        end
+    end
+
+    return false
+end
+
 RegisterServerEvent('r_admin:getPermissionLevel')
 AddEventHandler('r_admin:getPermissionLevel', function()
     local player = source
