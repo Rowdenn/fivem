@@ -34,5 +34,6 @@ server_scripts {
 dependencies {
     'framework',
     'menuv',
-    'r_notify'
+    'r_notify',
+    'r_metabolism'
 }
