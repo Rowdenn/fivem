@@ -72,7 +72,7 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Go to',
         description = 'Se téléporter vers ' .. targetName,
         select = function()
-            GoTo(targetId)
+            TriggerServerEvent('r_admin:goToPlayer', targetId)
         end
     })
 
@@ -81,7 +81,10 @@ function OpenPlayerActionsMenu(targetId, targetName)
         label = 'Bring',
         description = 'Amener ' .. targetName .. ' vers vous',
         select = function()
-            BringPlayer(targetId)
+            local player = PlayerPedId()
+            local playerCoords = GetEntityCoords(player)
+
+            TriggerServerEvent('r_admin:bringPlayer', targetId, playerCoords)
         end
     })
 

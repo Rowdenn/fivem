@@ -50,20 +50,6 @@ function GetMoneyAmount(targetId, targetName, moneyType)
     end)
 end
 
-function BringPlayer(targetId)
-    local player = PlayerPedId()
-    local playerCoords = GetEntityCoords(player)
-
-    TriggerServerEvent('r_admin:bringPlayer', targetId, playerCoords)
-end
-
-function GoTo(targetId)
-    local target = GetPlayerPed(targetId)
-    local targetCoords = GetEntityCoords(target)
-
-    TriggerEvent('r_admin:teleportPlayer', targetCoords)
-end
-
 RegisterNetEvent('r_admin:teleportPlayer')
 AddEventHandler('r_admin:teleportPlayer', function(coords)
     local player = PlayerPedId()
