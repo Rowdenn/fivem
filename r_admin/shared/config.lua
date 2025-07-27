@@ -15,17 +15,17 @@ AdminConfig.Menu = {
 
 -- Configuration des actions par niveau de permission
 AdminConfig.MenuActions = {
-    [AdminConfig.Permissions.MODERATOR] = {
-        'teleport_to_player',
-        'teleport_player_to_me',
+    [1] = {
+        'goto',
+        'bring',
         'spectate_player',
         'kick_player',
         'freeze_player',
         'noclip'
     },
-    [AdminConfig.Permissions.ADMIN] = {
-        'teleport_to_player',
-        'teleport_player_to_me',
+    [2] = {
+        'goto',
+        'bring',
         'spectate_player',
         'kick_player',
         'freeze_player',
@@ -38,9 +38,9 @@ AdminConfig.MenuActions = {
         'revive_player',
         'heal_player'
     },
-    [AdminConfig.Permissions.OWNER] = {
-        'teleport_to_player',
-        'teleport_player_to_me',
+    [3] = {
+        'goto',
+        'bring',
         'spectate_player',
         'kick_player',
         'freeze_player',
