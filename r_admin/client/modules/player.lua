@@ -88,7 +88,6 @@ AddEventHandler('r_admin:receivePlayersList', function(players)
 
     for _, player in pairs(players) do
         playersMenu:AddButton({
-            icon = '👤',
             label = player.name .. '[' .. player.id .. ']',
             description = 'Actions sur ',
             player.name,
