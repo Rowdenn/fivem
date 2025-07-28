@@ -26,7 +26,7 @@ AddEventHandler('r_admin:getPlayersList', function()
 end)
 
 RegisterServerEvent('r_admin:bringPlayer')
-AddEventHandler('r_admin:bringPlayer', function(targetServerId, adminCoords)
+AddEventHandler('r_admin:bringPlayer', function(targetServerId, adminCoords, adminHeading)
     local source = source
 
     if not HasPermissionServer(source, 'bring') then
@@ -36,9 +36,12 @@ AddEventHandler('r_admin:bringPlayer', function(targetServerId, adminCoords)
     local target = tonumber(targetServerId)
     CheckIfPlayerExists(target)
 
+    local distance = 2.0
+    local radians = math.rad(adminHeading)
+
     local teleportCoords = {
-        x = adminCoords.x + 2.0,
-        y = adminCoords.y + 2.0,
+        x = adminCoords.x - math.sin(radians) * distance,
+        y = adminCoords.y + math.cos(radians) * distance,
         z = adminCoords.z + 1.0
     }
 

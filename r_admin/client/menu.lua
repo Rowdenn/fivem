@@ -83,8 +83,9 @@ function OpenPlayerActionsMenu(targetId, targetName)
         select = function()
             local player = PlayerPedId()
             local playerCoords = GetEntityCoords(player)
+            local playerHeading = GetEntityHeading(player)
 
-            TriggerServerEvent('r_admin:bringPlayer', targetId, playerCoords)
+            TriggerServerEvent('r_admin:bringPlayer', targetId, playerCoords, playerHeading)
         end
     })
 
