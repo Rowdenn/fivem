@@ -184,10 +184,19 @@ function OpenVehicleMainMenu()
 
     vehicleMenu:AddButton({
         icon = '🚗',
-        label = 'Modifier véhicule',
+        label = 'Modifier le véhicule',
         description = 'Modifier le véhicule actuel',
         select = function()
             OpenVehicleModificationMenu()
+        end
+    })
+
+    vehicleMenu:AddButton({
+        icon = '🔧',
+        label = 'Réparer',
+        description = 'Répare complètement le véhicule',
+        select = function()
+            RepairVehicle()
         end
     })
 
