@@ -2,6 +2,7 @@ local AdminMenu = nil
 local currentPermissionLevel = 0
 local isMenuOpen = false
 local isMenuCreated = false
+CurrentVehicle = nil
 
 function CreateAdminMenu(permissionLevel)
     if isMenuCreated and currentPermissionLevel == permissionLevel then
@@ -168,6 +169,10 @@ function OpenVehicleMainMenu()
     local vehicleMenu = MenuV:CreateMenu("Véhicule", false, "topright", 255, 0, 0,
         "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
 
+    local player = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(player)
+    CurrentVehicle = vehicle
+
     vehicleMenu:AddButton({
         icon = '🚗',
         label = 'Liste des véhicules (spawn)',
@@ -178,49 +183,37 @@ function OpenVehicleMainMenu()
     })
 
     vehicleMenu:AddButton({
-        icon = '🎨',
-        label = 'Modifier le véhicule',
-        description = 'Personnaliser votre véhicule actuel',
+        icon = '🚗',
+        label = 'Modifier véhicule',
+        description = 'Modifier le véhicule actuel',
         select = function()
             OpenVehicleModificationMenu()
         end
     })
 
+    vehicleMenu:AddButton({
+        icon = '🧽',
+        label = 'Nettoyer',
+        description = 'Nettoie complètement le véhicule',
+        select = function()
+            ClearVehicle()
+        end
+    })
+
+    vehicleMenu:AddButton({
+        icon = '📋',
+        label = 'Infos véhicule',
+        description = 'Voir les détails du véhicule',
+        select = function()
+            GetVehicleDetails()
+        end
+    })
+
+    vehicleMenu:On('close', function()
+        CurrentVehicle = nil
+    end)
+
     vehicleMenu:Open()
-end
-
-function OpenVehicleModificationMenu()
-    local modMenu = MenuV:CreateMenu("Modifier véhicule", false, "topright", 255, 0, 0,
-        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
-
-    modMenu:AddButton({
-        icon = '🎨',
-        label = 'Couleur',
-        description = 'Changer la couleur du véhicule',
-        select = function()
-            -- OpenColorMenu()
-        end
-    })
-
-    modMenu:AddButton({
-        icon = '⭕',
-        label = 'Jantes',
-        description = 'Modifier les jantes',
-        select = function()
-            -- OpenWheelsMenu()
-        end
-    })
-
-    modMenu:AddButton({
-        icon = '🛡️',
-        label = 'Pare-choc avant',
-        description = 'Changer le pare-choc avant',
-        select = function()
-            -- OpenBumperMenu('front')
-        end
-    })
-
-    modMenu:Open()
 end
 
 function OpenWorldMenu()
