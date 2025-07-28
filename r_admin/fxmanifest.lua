@@ -24,6 +24,7 @@ client_scripts {
     'client/utils/*.lua',
     'client/*.lua',
     'client/modules/*.lua',
+    'client/modules/vehicles/*.lua'
 }
 
 server_scripts {
