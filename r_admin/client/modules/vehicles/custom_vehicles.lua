@@ -34,7 +34,6 @@ local modTypes = {
     [8]  = "Garde-boue gauche",
     [9]  = "Garde-boue droite",
     [10] = "Toit",
-    [13] = "Boîte de vitesses",
     [17] = "Nitro",
     [19] = "Subwoofer",
     [20] = "Fumée des pneus",
@@ -183,7 +182,7 @@ function OpenVehicleModificationMenu()
         label = 'Performance',
         description = 'Améliorer les performances',
         select = function()
-            -- OpenPerformanceMenu()
+            OpenPerfMenu()
         end
     })
 
@@ -737,6 +736,68 @@ function OpenModsMenu()
     end
 
     modsMenu:Open()
+end
+
+function OpenPerfMenu()
+    local perfMenu = MenuV:CreateMenu("Performances", false, "topright", 255, 0, 0,
+        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
+
+    if CurrentVehicle == nil then return end
+
+    SetVehicleModKit(CurrentVehicle, 0)
+
+    for perfId, perfName in pairs(perfTypes) do
+        local perfCount = GetNumVehicleMods(CurrentVehicle, perfId)
+
+        if perfCount > 0 then
+            local currentVehicleMod = GetVehicleMod(CurrentVehicle, perfId)
+
+            local modOptions = { { label = "Stock", value = -1 } }
+            for i = 0, perfCount - 1 do
+                table.insert(modOptions, {
+                    label = "#" .. (i + 1),
+                    value = i
+                })
+            end
+
+            local initialModIndex = 1
+            for i, option in ipairs(modOptions) do
+                if option.value == currentVehicleMod then
+                    initialModIndex = i
+                    break
+                end
+            end
+
+            local perfSlider = perfMenu:AddSlider({
+                label = perfName .. " (" .. perfCount .. ")",
+                value = initialModIndex,
+                values = modOptions
+            })
+
+            perfSlider:On('change', function(uuid, key, currentValue, oldValue)
+                if currentValue and modOptions[currentValue] then
+                    local modData = modOptions[currentValue]
+                    local vehicleModId = modData.value
+
+                    if not IsVehicleDriveable(CurrentVehicle, false) then
+                        return
+                    end
+
+                    SetVehicleModKit(CurrentVehicle, 0)
+
+                    if vehicleModId == -1 then
+                        RemoveVehicleMod(CurrentVehicle, perfId)
+                    else
+                        SetVehicleMod(CurrentVehicle, perfId, vehicleModId, false)
+                    end
+
+                    SaveVehicleMods()
+                end
+            end)
+        end
+    end
+
+    perfMenu:Open()
 end
 
 function ApplyVehicleColor(colorType, colorId)
