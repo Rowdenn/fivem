@@ -1,11 +1,19 @@
 
-window.addEventListener('message', function(event) {
+let isVisible = true;
+
+window.addEventListener('message', function (event) {
     const data = event.data;
 
-    switch(data.type) {
+    switch (data.type) {
         case 'updateValues':
-            updateBar('hunger', data.hunger);
-            updateBar('thirst', data.thirst);
+            if (isVisible) {
+                updateBar('hunger', data.hunger);
+                updateBar('thirst', data.thirst);
+            }
+            break;
+        case 'toggleVisibility':
+            console.log(data.show)
+            toggleHudVisibility(data.show)
             break;
     }
 })
@@ -18,5 +26,26 @@ function updateBar(type, value) {
         bar.classList.add('low');
     } else {
         bar.classList.remove('low');
+    }
+}
+
+function toggleHudVisibility(show) {
+    isVisible = show;
+    const hudContainer = document.getElementById('metabolism-container');
+
+    if (!hudContainer) return;
+
+    if (show) {
+        hudContainer.style.display = 'block';
+        hudContainer.style.transition = 'opacity 0.3s ease-in-out';
+        setTimeout(() => {
+            hudContainer.style.opacity = '1';
+        }, 10)
+    } else {
+        hudContainer.style.transition = 'opacity 0.3s ease-in-out';
+        hudContainer.style.opacity = '0';
+        setTimeout(() => {
+            hudContainer.style.display = 'none';
+        }, 300)
     }
 }
