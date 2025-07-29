@@ -40,10 +40,6 @@ function LocalVisibility:AddEntity(entityId, entity, options)
         SetVehicleGravity(entity, false)
     end
 
-    for entityId, entityData in pairs(LocalVisibility.entities) do
-        print("- " .. entityId .. ': entité ' .. entityData.entity)
-    end
-
     self:StartThread()
 
     return true
@@ -76,11 +72,6 @@ function LocalVisibility:RemoveEntity(entityId)
         end
 
         self.entities[entityId] = nil
-
-        print('Entité supprimée: ', json.encode(entityData))
-        for entityId, entityData in pairs(LocalVisibility.entities) do
-            print("- " .. entityId .. ': entité ' .. entityData.entity)
-        end
 
         if self:IsEmpty() then
             self:StopThread()
