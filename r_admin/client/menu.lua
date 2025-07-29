@@ -180,6 +180,8 @@ function OpenVehicleMainMenu()
         return bulletProof and fireProof and explosionProof and collisionProof
     end
 
+    local isVehicleVisible = IsEntityVisible(CurrentVehicle)
+
     vehicleMenu:AddButton({
         icon = '🚗',
         label = 'Liste des véhicules (spawn)',
@@ -206,12 +208,31 @@ function OpenVehicleMainMenu()
     })
 
     invincibleCheckbox:On('update', function(uuid, key, currentValue, oldValue)
+        if CurrentVehicle == nil then return end
+
         if currentValue then
             SetEntityInvincible(CurrentVehicle, true)
             SetEntityProofs(CurrentVehicle, true, true, true, true, true, true, true, true)
         else
             SetEntityInvincible(CurrentVehicle, false)
             SetEntityProofs(CurrentVehicle, false, false, false, false, false, false, false, false)
+        end
+    end)
+
+    local invisibleCheckbox = vehicleMenu:AddCheckbox({
+        icon = '🚗',
+        label = 'Invisible',
+        description = 'Rendre le véhicule invisible',
+        value = not isVehicleVisible,
+    })
+
+    invisibleCheckbox:On('update', function(uuid, key, currentValue, oldValue)
+        if CurrentVehicle == nil then return end
+
+        if currentValue then
+            SetEntityVisible(CurrentVehicle, false, false)
+        else
+            SetEntityVisible(CurrentVehicle, true, true)
         end
     end)
 
