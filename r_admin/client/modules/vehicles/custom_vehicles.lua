@@ -313,15 +313,17 @@ function OpenWheelsMenu()
         end
     })
 
+    local isCustom = GetVehicleModVariation(CurrentVehicle, 23)
+
     local customWheels = wheelsMenu:AddCheckbox({
-        label = 'Jantes personnalisées',
+        label = 'Jantes custom',
         description = 'Activer/désactiver jantes custom',
-        value = false,
+        value = isCustom
     })
 
-    customWheels:On('update', function(item, wasChecked, isChecked)
-        local isCustom = GetVehicleModVariation(CurrentVehicle, 23)
-        SetVehicleMod(CurrentVehicle, 23, GetVehicleMod(CurrentVehicle, 23), not isCustom)
+    customWheels:On('update', function(uuid, key, currentValue, oldValue)
+        SetVehicleModKit(CurrentVehicle, 0)
+        SetVehicleMod(CurrentVehicle, 23, GetVehicleMod(CurrentVehicle, 23), currentValue)
         SaveVehicleMods()
     end)
 
