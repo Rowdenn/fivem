@@ -22,7 +22,7 @@ local wheelTypes = {
 }
 
 -- Catégories de modifications
-local modCategories = {
+local modTypes = {
     [0]  = "Spoilers",
     [1]  = "Pare-chocs avant",
     [2]  = "Pare-chocs arrière",
@@ -31,37 +31,48 @@ local modCategories = {
     [5]  = "Châssis",
     [6]  = "Calandre",
     [7]  = "Capot",
-    [8]  = "Garde-boue",
+    [8]  = "Garde-boue gauche",
     [9]  = "Garde-boue droite",
     [10] = "Toit",
-    [11] = "Moteur",
-    [12] = "Frein",
-    [13] = "Transmission",
-    [14] = "Klaxon",
-    [15] = "Suspension",
-    [16] = "Blindage",
-    [25] = "Plaque d'immatriculation",
-    [27] = "Garniture intérieure",
-    [28] = "Ornements",
-    [29] = "Tableau de bord",
-    [30] = "Cadran",
-    [31] = "Haut-parleur de porte",
+    [13] = "Boîte de vitesses",
+    [17] = "Nitro",
+    [19] = "Subwoofer",
+    [20] = "Fumée des pneus",
+    [21] = "Hydrauliques",
+    [22] = "Phares Xénon",
+    [24] = "Jantes arrière ou Hydrauliques",
+    [27] = "Garniture intérieure 1",
+    [28] = "Garniture intérieure 2",
+    [29] = "Garniture intérieure 3",
+    [30] = "Garniture intérieure 4",
+    [31] = "Garniture intérieure 5",
     [32] = "Sièges",
     [33] = "Volant",
     [34] = "Levier de vitesse",
-    [35] = "Plaque personnalisée",
-    [36] = "Haut-parleur arrière",
+    [36] = "Réfrigération",
     [37] = "Coffre",
-    [38] = "Hydrolique",
-    [39] = "Kit de moteur",
-    [40] = "Filtre à air",
-    [41] = "Entretoises",
-    [42] = "Couvre-soupape",
-    [43] = "Livery",
-    [44] = "Plaque latérale",
-    [45] = "Échappement arrière",
-    [46] = "Ventilateur",
-    [47] = "Réservoir"
+    [38] = "Hydro",
+    [39] = "Compartiment moteur 1",
+    [40] = "Compartiment moteur 2",
+    [41] = "Compartiment moteur 3",
+    [42] = "Châssis 2",
+    [43] = "Châssis 3",
+    [44] = "Châssis 4",
+    [45] = "Châssis 5",
+    [46] = "Porte gauche",
+    [47] = "Porte droite",
+    [48] = "Decals",
+    [49] = "Rampe lumineuse"
+}
+
+local perfTypes = {
+    [11] = "Moteur",
+    [12] = "Frein",
+    [13] = "Transmission",
+    [15] = "Suspension",
+    [16] = "Blindage",
+    [18] = "Turbo"
+
 }
 
 local neonColors = {
@@ -163,7 +174,7 @@ function OpenVehicleModificationMenu()
         label = 'Modifications',
         description = 'Modifier les pièces du véhicule',
         select = function()
-            -- OpenModsMenu()
+            OpenModsMenu()
         end
     })
 
@@ -612,13 +623,33 @@ function OpenNeonMenu()
         end
     })
 
-    neonMenu:AddButton({
-        label = 'Couleur des néons',
-        description = 'Changer la couleur des néons',
-        select = function()
-            OpenNeonColorMenu()
+    local redCurrentNeonColor, greendCurrentNeonColor, blueCurrentNeonColor = GetVehicleNeonLightsColour(CurrentVehicle)
+
+    local initialNeonColorIndex = 1
+    for _, colorData in pairs(neonColors) do
+        if (tonumber(colorData.r) + tonumber(colorData.g) + tonumber(colorData.b) == redCurrentNeonColor + greendCurrentNeonColor + blueCurrentNeonColor) then
+            initialNeonColorIndex = 1
+            break
         end
+    end
+
+    local neonColorSlider = neonMenu:AddSlider({
+        label = "Couleur des neons",
+        value = initialNeonColorIndex,
+        values = neonColors
     })
+
+    neonColorSlider:On('change', function(uuid, key, currentValue, oldValue)
+        if currentValue and neonColors[currentValue] then
+            local colorData = neonColors[currentValue]
+            local colorR = colorData.r
+            local colorG = colorData.g
+            local colorB = colorData.b
+
+            SetVehicleNeonLightsColour(CurrentVehicle, colorR, colorG, colorB)
+            SaveVehicleMods()
+        end
+    end)
 
     local neonPositions = {
         { id = 0, name = "Gauche" }, { id = 1, name = "Droite" },
@@ -646,41 +677,66 @@ function OpenNeonMenu()
     neonMenu:Open()
 end
 
-function OpenNeonColorMenu()
-    local neonColorMenu = MenuV:CreateMenu("Couleur néons", false, "topright", 255, 0, 0,
+function OpenModsMenu()
+    local modsMenu = MenuV:CreateMenu("Carrosserie", false, "topright", 255, 0, 0,
         "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
 
     if CurrentVehicle == nil then return end
 
-    local redCurrentNeonColor, greendCurrentNeonColor, blueCurrentNeonColor = GetVehicleNeonLightsColour(CurrentVehicle)
+    SetVehicleModKit(CurrentVehicle, 0)
 
-    local initialNeonColorIndex = 1
-    for _, colorData in pairs(neonColors) do
-        if (tonumber(colorData.r) + tonumber(colorData.g) + tonumber(colorData.b) == redCurrentNeonColor + greendCurrentNeonColor + blueCurrentNeonColor) then
-            initialNeonColorIndex = 1
-            break
+    for modId, modName in pairs(modTypes) do
+        local modCount = GetNumVehicleMods(CurrentVehicle, modId)
+
+        if modCount > 0 then
+            local currentVehicleMod = GetVehicleMod(CurrentVehicle, modId)
+
+            local modOptions = { { label = "Stock", value = -1 } }
+            for i = 0, modCount - 1 do
+                table.insert(modOptions, {
+                    label = "#" .. (i + 1),
+                    value = i
+                })
+            end
+
+            local initialModIndex = 1
+            for i, option in ipairs(modOptions) do
+                if option.value == currentVehicleMod then
+                    initialModIndex = i
+                    break
+                end
+            end
+
+            local modSlider = modsMenu:AddSlider({
+                label = modName .. " (" .. modCount .. ")",
+                value = initialModIndex,
+                values = modOptions
+            })
+
+            modSlider:On('change', function(uuid, key, currentValue, oldValue)
+                if currentValue and modOptions[currentValue] then
+                    local modData = modOptions[currentValue]
+                    local vehicleModId = modData.value
+
+                    if not IsVehicleDriveable(CurrentVehicle, false) then
+                        return
+                    end
+
+                    SetVehicleModKit(CurrentVehicle, 0)
+
+                    if vehicleModId == -1 then
+                        RemoveVehicleMod(CurrentVehicle, modId)
+                    else
+                        SetVehicleMod(CurrentVehicle, modId, vehicleModId, false)
+                    end
+
+                    SaveVehicleMods()
+                end
+            end)
         end
     end
 
-    local neonColorSlider = neonColorMenu:AddSlider({
-        label = "Couleur des neons",
-        value = initialNeonColorIndex,
-        values = neonColors
-    })
-
-    neonColorSlider:On('change', function(uuid, key, currentValue, oldValue)
-        if currentValue and neonColors[currentValue] then
-            local colorData = neonColors[currentValue]
-            local colorR = colorData.r
-            local colorG = colorData.g
-            local colorB = colorData.b
-
-            SetVehicleNeonLightsColour(CurrentVehicle, colorR, colorG, colorB)
-            SaveVehicleMods()
-        end
-    end)
-
-    neonColorMenu:Open()
+    modsMenu:Open()
 end
 
 function ApplyVehicleColor(colorType, colorId)
