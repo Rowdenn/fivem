@@ -121,9 +121,12 @@ local hornTypes = {
 }
 
 local plateTypes = {
-    { id = 0, label = "Bleue sur blanc 1" }, { id = 1, label = "Bleue sur blanc 2" },
-    { id = 2, label = "Bleue sur blanc 3" }, { id = 3, label = "Jaune sur noir" },
-    { id = 4, label = "Jaune sur bleu" }, { id = 5, label = "Yanks" }
+    [0] = "Bleue sur blanc 1",
+    [1] = "Bleue sur blanc 2",
+    [2] = "Bleue sur blanc 3",
+    [3] = "Jaune sur noir",
+    [4] = "Jaune sur bleu",
+    [5] = "Yanks"
 }
 
 function OpenVehicleModificationMenu()
@@ -550,10 +553,10 @@ function OpenLicensePlateMenu()
     local currentLicensePlate = GetVehicleNumberPlateTextIndex(CurrentVehicle)
 
     local licensePlateOptions = {}
-    for _, plateData in ipairs(plateTypes) do
+    for plateId, plateName in pairs(plateTypes) do
         table.insert(licensePlateOptions, {
-            label = plateData.label,
-            value = plateData.id
+            label = plateName,
+            value = plateId
         })
     end
 
@@ -577,6 +580,7 @@ function OpenLicensePlateMenu()
             local plateId   = plateData.value
 
             SetVehicleNumberPlateTextIndex(CurrentVehicle, plateId)
+            SetVehicleModKit(CurrentVehicle, 0)
             SaveVehicleMods()
         end
     end)
