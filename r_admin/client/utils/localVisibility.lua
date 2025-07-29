@@ -4,8 +4,6 @@ LocalVisibility = {
 }
 -- Ajoute une entité à la liste des entités visibles localement
 function LocalVisibility:AddEntity(entityId, entity, options)
-    print('Entité ajoutée, ID: ' .. entityId .. ' entité: ' .. entity .. ' options: ' .. json.encode(options))
-
     if not DoesEntityExist(entity) then return false end
 
     options = options or {}
