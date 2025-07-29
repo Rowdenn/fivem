@@ -82,17 +82,42 @@ local neonColors = {
 
 -- TODO Changer les tableaux ci dessous pour la cohérence du code
 local hornTypes = {
-    { id = -1, name = "Stock" }, { id = 0, name = "Klaxon camion" }, { id = 1, name = "Klaxon police" },
-    { id = 2,  name = "Clown" }, { id = 3, name = "Classique 1" }, { id = 4, name = "Classique 2" },
-    { id = 5, name = "Classique 3" }, { id = 6, name = "Classique 4" }, { id = 7, name = "Classique 5" },
-    { id = 8, name = "Classique 6" }, { id = 9, name = "Classique 7" }, { id = 10, name = "Scale Do" },
-    { id = 11, name = "Scale Re" }, { id = 12, name = "Scale Mi" }, { id = 13, name = "Scale Fa" },
-    { id = 14, name = "Scale Sol" }, { id = 15, name = "Scale La" }, { id = 16, name = "Scale Ti" },
-    { id = 17, name = "Scale Do (Aigu)" }, { id = 18, name = "Jazz 1" }, { id = 19, name = "Jazz 2" },
-    { id = 20, name = "Jazz 3" }, { id = 21, name = "Jazz Loop" }, { id = 22, name = "Starspangled Banner 1" },
-    { id = 23, name = "Starspangled Banner 2" }, { id = 24, name = "Starspangled Banner 3" },
-    { id = 25, name = "Starspangled Banner 4" }, { id = 26, name = "Classique Loop 1" },
-    { id = 27, name = "Classique 8" }, { id = 28, name = "Classique Loop 2" }
+    [-1] = "Stock",
+    [0]  = "Truck Horn",
+    [1]  = "Cop Horn",
+    [2]  = "Clown Horn",
+    [3]  = "Musical Horn 1",
+    [4]  = "Musical Horn 2",
+    [5]  = "Musical Horn 3",
+    [6]  = "Musical Horn 4",
+    [7]  = "Musical Horn 5",
+    [8]  = "Sad Trombone",
+    [9]  = "Classical Horn 1",
+    [10] = "Classical Horn 2",
+    [11] = "Classical Horn 3",
+    [12] = "Classical Horn 4",
+    [13] = "Classical Horn 5",
+    [14] = "Classical Horn 6",
+    [15] = "Classical Horn 7",
+    [16] = "Scale - Do",
+    [17] = "Scale - Re",
+    [18] = "Scale - Mi",
+    [19] = "Scale - Fa",
+    [20] = "Scale - Sol",
+    [21] = "Scale - La",
+    [22] = "Scale - Ti",
+    [23] = "Scale - Do (High)",
+    [24] = "Jazz Horn 1",
+    [25] = "Jazz Horn 2",
+    [26] = "Jazz Horn 3",
+    [27] = "Jazz Horn Loop",
+    [28] = "Star Spangled Banner 1",
+    [29] = "Star Spangled Banner 2",
+    [30] = "Star Spangled Banner 3",
+    [31] = "Star Spangled Banner 4",
+    [32] = "Classical Loop 1",
+    [33] = "Classical 8",
+    [34] = "Classical Loop 2"
 }
 
 local plateTypes = {
@@ -480,15 +505,19 @@ function OpenHornMenu()
 
     if CurrentVehicle == nil then return end
 
-    for _, horn in ipairs(hornTypes) do
-        hornMenu:AddButton({
-            label = horn.name,
-            description = 'Tester ce klaxon',
-            select = function()
-                SetVehicleMod(CurrentVehicle, 14, horn.id, false)
-                SaveVehicleMods()
-            end
-        })
+    for hornId = -1, 34 do
+        if hornTypes[hornId] then
+            hornMenu:AddButton({
+                label = hornTypes[hornId],
+                description = 'Ajouter le klaxon ' .. hornTypes[hornId] .. 'au véhicule',
+                select = function()
+                    print("Setting horn:", hornId, hornTypes[hornId])
+                    SetVehicleMod(CurrentVehicle, 14, hornId, false)
+                    SetVehicleModKit(CurrentVehicle, 0)
+                    SaveVehicleMods()
+                end
+            })
+        end
     end
 
     hornMenu:Open()
