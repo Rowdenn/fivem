@@ -173,6 +173,13 @@ function OpenVehicleMainMenu()
     local vehicle = GetVehiclePedIsIn(player)
     CurrentVehicle = vehicle
 
+    -- Façon de vérifier si le véhicule est invincible
+    local function isVehicleInvincible(vehicle)
+        local bulletProof, fireProof, explosionProof, collisionProof, meleeProof, steamProof, p7, drownProof =
+            GetEntityProofs(vehicle)
+        return bulletProof and fireProof and explosionProof and collisionProof
+    end
+
     vehicleMenu:AddButton({
         icon = '🚗',
         label = 'Liste des véhicules (spawn)',
@@ -190,6 +197,23 @@ function OpenVehicleMainMenu()
             OpenVehicleModificationMenu()
         end
     })
+
+    local invincibleCheckbox = vehicleMenu:AddCheckbox({
+        icon = '🚗',
+        label = 'Invincible',
+        description = 'Rendre le véhicule invincible',
+        value = isVehicleInvincible(CurrentVehicle),
+    })
+
+    invincibleCheckbox:On('update', function(uuid, key, currentValue, oldValue)
+        if currentValue then
+            SetEntityInvincible(CurrentVehicle, true)
+            SetEntityProofs(CurrentVehicle, true, true, true, true, true, true, true, true)
+        else
+            SetEntityInvincible(CurrentVehicle, false)
+            SetEntityProofs(CurrentVehicle, false, false, false, false, false, false, false, false)
+        end
+    end)
 
     vehicleMenu:AddButton({
         icon = '🔧',
