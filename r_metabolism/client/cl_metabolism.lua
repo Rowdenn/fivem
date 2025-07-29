@@ -33,7 +33,6 @@ Citizen.CreateThread(function()
 
         if shouldShow ~= isHudVisible then
             isHudVisible = shouldShow
-            print(isHudVisible)
             SendNuiMessage(json.encode({
                 type = 'toggleVisibility',
                 show = isHudVisible

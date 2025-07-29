@@ -12,7 +12,6 @@ window.addEventListener('message', function (event) {
             }
             break;
         case 'toggleVisibility':
-            console.log(data.show)
             toggleHudVisibility(data.show)
             break;
     }
