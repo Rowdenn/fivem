@@ -270,31 +270,6 @@ function OpenVehicleMainMenu()
     vehicleMenu:Open()
 end
 
-function OpenWorldMenu()
-    local worldMenu = MenuV:CreateMenu("Monde", false, "topright", 255, 0, 0,
-        "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
-
-    worldMenu:AddButton({
-        icon = '🌤️',
-        label = 'Modifier la météo',
-        description = 'Changer les conditions météorologiques',
-        select = function()
-            -- OpenWeatherMenu()
-        end
-    })
-
-    worldMenu:AddButton({
-        icon = '🕐',
-        label = 'Changer l\'heure',
-        description = 'Modifier l\'heure du serveur',
-        select = function()
-            -- GetTimeForServer()
-        end
-    })
-
-    worldMenu:Open()
-end
-
 function OpenUtilitiesMenu()
     local utilitiesMenu = MenuV:CreateMenu("Utilitaires", false, "topright", 255, 0, 0,
         "size-125", 'interaction_bgd', 'commonmenu', false, 'native')
