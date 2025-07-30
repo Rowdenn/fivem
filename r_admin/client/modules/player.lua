@@ -79,6 +79,12 @@ AddEventHandler('r_admin:teleportPlayer', function(coords)
     end)
 end)
 
+RegisterNetEvent('r_admin:setPlayerHealth')
+AddEventHandler('r_admin:setPlayerHealth', function()
+    local player = PlayerPedId()
+    SetEntityHealth(player, 1000)
+end)
+
 RegisterNetEvent('r_admin:receivePlayersList')
 AddEventHandler('r_admin:receivePlayersList', function(players)
     local playersMenu = MenuV:CreateMenu("Joueurs connectés", false, "topright", 255, 0, 0,

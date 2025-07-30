@@ -102,3 +102,21 @@ AddEventHandler('r_admin:feedPlayer', function(targetServerId)
         TriggerEvent('r_admin:server:showNotification', target, 'Vous avez été nourri', 'success')
     end
 end)
+
+RegisterServerEvent('r_admin:healPlayer')
+AddEventHandler('r_admin:healPlayer', function(targetServerId)
+    local source = source
+
+    if not HasPermissionServer(source, 'heal') then
+        return
+    end
+
+    local target = tonumber(targetServerId)
+    CheckIfPlayerExists(target)
+
+    local targetName = GetPlayerName(target)
+
+    TriggerClientEvent('r_admin:setPlayerHealth', source)
+    TriggerEvent('r_admin:server:showNotification', source, 'Vous avez soigné ' .. targetName, 'success')
+    TriggerEvent('r_admin:server:showNotification', target, 'Vous avez été soigné', 'success')
+end)
