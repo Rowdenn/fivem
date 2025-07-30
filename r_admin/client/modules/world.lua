@@ -65,7 +65,7 @@ AddEventHandler('r_admin:syncWeather', function(weather, transitionTime)
     if transitionTime and transitionTime > 0 then
         SetWeatherTypeOvertimePersist(weather, transitionTime / 1000)
         TriggerServerEvent('r_admin:client:showNotification',
-            'Changement de la météo pour ' .. weather, 'error')
+            'Changement de la météo pour ' .. weather, 'info')
 
         Citizen.SetTimeout(transitionTime, function()
             isTransitioning = false
