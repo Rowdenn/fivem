@@ -5,7 +5,10 @@ author 'Rowden'
 description 'Coma System'
 version '1.0.0'
 
-dependency 'spawnmanager'
+dependencies {
+    'spawnmanager',
+    'framework'
+}
 
 client_scripts {
     'client/*.lua'
