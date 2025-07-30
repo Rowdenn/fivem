@@ -1,8 +1,9 @@
 local Framework = exports['framework']:GetFramework()
 local playerPermissions = {}
 
-function HasPermissionServer(playerId, requiredAction)
-    local permissionLevel = Framework.Player:GetPermissionsLevel(playerId)
+function HasPermissionServer(source, requiredAction)
+    local permissionLevel = Framework.Player:GetPermissionsLevel(source)
+    print(permissionLevel)
 
     for _, action in ipairs(AdminConfig.MenuActions[permissionLevel]) do
         if action == requiredAction then
