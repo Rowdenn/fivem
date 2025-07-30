@@ -1,14 +1,12 @@
 local isDead = false
 local isInDeathState = false
 local isInDeathProcess = false
-local lastDamageSource = nil
 local lastWeaponHash = nil
-local currentDeathCause = nil
 local deathTimer = 0
 local uiOpen = false
 
 local weaponCat = {
-    ["unarmed"] =  GetHashKey("WEAPON_UNARMED"),
+    ["unarmed"] = GetHashKey("WEAPON_UNARMED"),
     ["knife"] = GetHashKey("WEAPON_KNIFE"),
     ["gun"] = {
         GetHashKey("WEAPON_PISTOL"),
@@ -23,11 +21,11 @@ local weaponCat = {
 }
 
 local comaTimers = {
-    ["unarmed"] = 15,  -- 15 seconds for unarmed
-    ["knife"] = 45,  -- 45 seconds for knife
-    ["gun"] = 60,  -- 60 seconds for gun
+    ["unarmed"] = 15, -- 15 seconds for unarmed
+    ["knife"] = 45,   -- 45 seconds for knife
+    ["gun"] = 60,     -- 60 seconds for gun
     ["hunger"] = 40,  -- 40 seconds for hunger
-    ["thirst"] = 40, -- 40 seconds for thirst
+    ["thirst"] = 40,  -- 40 seconds for thirst
     ["unknown"] = 30  -- 30 seconds for unknown causes
 }
 
@@ -39,13 +37,16 @@ end
 function HandlePlayerDeath()
     SetPlayerInvincible(PlayerId(), true)
     isInDeathState = true
+    isDead = true
 
-    DetectDeathCause()
+    if not isInDeathProcess then
+        DetectDeathCause()
+    end
 end
 
 function GetWeaponCategory(weaponHash)
-    if weaponHash  == weaponCat["unarmed"] then
-        return "unarmed"    
+    if weaponHash == weaponCat["unarmed"] then
+        return "unarmed"
     end
 
     if weaponHash == weaponCat["knife"] then
@@ -58,50 +59,27 @@ function GetWeaponCategory(weaponHash)
         end
     end
 
-    -- Si aucune correspondance n'est trouvée, on considère que la cause est inconnue
     return "unknown"
 end
 
-function RevivePlayer()
+function ResetDeathState()
     local player = PlayerPedId()
-    local coords = GetEntityCoords(player)
 
-    isInDeathProcess = false
+    ClearPedTasks(player)
+    ClearPedTasksImmediately(player)
+
+    SetEntityHealth(player, 150)
+
     isDead = false
-    currentDeathCause = nil
+    isInDeathState = false
+    isInDeathProcess = false
     deathTimer = 0
 
     HideComaInterface()
-
-    NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, GetEntityHeading(player), true, false)
-    
-    SetEntityHealth(PlayerPedId(), 150)
+    MakePlayerInvisibleToNPCs(false)
 
     SetPlayerInvincible(PlayerId(), false)
-    SetPedToRagdoll(player, 0, 0, 0, 0, 0, 0)
-
-    DoScreenFadeOut(500)
-    Citizen.Wait(1000)
-    DoScreenFadeIn(1500)
-end
-
-function ApplyDeathEffects()
-    Citizen.CreateThread(function()
-        while isInDeathProcess do
-            Citizen.Wait(0)
-            
-            local playerPed = PlayerPedId()
-            
-            SetPedToRagdoll(playerPed, 1000, 1000, 0, 0, 0, 0)
-            
-            SetTimecycleModifier("drug_deadman")
-            SetTimecycleModifierStrength(0.8)
-            
-            DisableAllControls()
-        end
-        
-        ClearTimecycleModifier()
-    end)
+    exports['framework']:SetForcedRagdoll(true)
 end
 
 function ShowComaInterface(cat, koTime)
@@ -135,19 +113,23 @@ function UpdateComaInterface(timeLeft)
 end
 
 function StartDeathProcess(cat, koTime)
-    currentDeathCause = cat
-    deathTimer = koTime
-    isInDeathProcess = true
-    isDead = true
+    if isInDeathProcess then return end
 
+    isInDeathProcess = true
+    deathTimer = koTime
+
+    exports['framework']:SetForcedRagdoll(true)
     MakePlayerInvisibleToNPCs(true)
+
     ShowComaInterface(cat, koTime)
-    DisableAllControls()
     StartDeathTimer()
-    ApplyDeathEffects()
 end
 
 function DetectDeathCause()
+    if isInDeathProcess then
+        return
+    end
+
     local cat = "unknown"
 
     if lastWeaponHash then
@@ -164,21 +146,18 @@ function StartDeathTimer()
         while deathTimer > 0 and isInDeathProcess do
             Citizen.Wait(1000)
             deathTimer = deathTimer - 1
-
             UpdateComaInterface(deathTimer)
         end
 
-        if deathTimer <= 0 then
-            RevivePlayer()
-            MakePlayerInvisibleToNPCs(false)
+        -- Quand le timer arrive à 0, on reset automatiquement l'état de mort
+        if deathTimer <= 0 and isInDeathProcess then
+            ResetDeathState()
         end
     end)
 end
 
 function MakePlayerInvisibleToNPCs(enable)
-    if enable then       
-        print(PlayerId() .. " is now invisible to NPCs")
-        print("Making player invisible to NPCs") 
+    if enable then
         SetEveryoneIgnorePlayer(PlayerId(), true)
         SetPoliceIgnorePlayer(PlayerId(), true)
     else
@@ -192,16 +171,17 @@ RegisterCommand('testdeath', function(source, args)
     if args[1] then
         local cat = args[1]
         local weapon = GetWeaponCategory(GetHashKey("WEAPON_" .. string.upper(cat)))
-        local koTime = comaTimers[cat] or 30  -- Default to 30 seconds if category not found
+        local koTime = comaTimers[cat] or 30
         StartDeathProcess(weapon, koTime)
     else
         print("Usage: /testdeath <category>")
     end
 end, false)
 
+-- Commande pour forcer la récupération (optionnelle, pour les admins par exemple)
 RegisterCommand("revive", function()
     if isInDeathProcess then
-        RevivePlayer()
+        ResetDeathState()
     end
 end, false)
 
@@ -219,14 +199,12 @@ Citizen.CreateThread(function()
         local player = PlayerPedId()
         local health = GetEntityHealth(player)
 
-        if health <= 0 and not isDead then
-            isDead = true
+        if health <= 0 and not isDead and not isInDeathProcess and not isInDeathState then
             HandlePlayerDeath()
         end
 
         if isInDeathState then
-            -- Check if the player has respawned or is no longer in a death state
-            if health > 0 then
+            if isInDeathState and health > 0 and not isInDeathProcess then
                 isInDeathState = false
                 isDead = false
                 SetPlayerInvincible(PlayerId(), false)
@@ -242,7 +220,6 @@ Citizen.CreateThread(function()
 
         if isInDeathProcess then
             DisableAllControls()
-            SetPedToRagdoll(PlayerPedId(), 1000, 1000, 0, 0, 0, 0)
         end
     end
 end)
@@ -262,7 +239,6 @@ AddEventHandler('gameEventTriggered', function(name, data)
                 if IsPedAPlayer(attacker) then
                     local attackerId = NetworkGetPlayerIndexFromPed(attacker)
                     local attackerName = GetPlayerName(attackerId)
-
                     -- TODO Ajouter les logs discord
                 end
             end
