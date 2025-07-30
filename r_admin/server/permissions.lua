@@ -11,6 +11,7 @@ function HasPermissionServer(source, requiredAction)
         end
     end
 
+    TriggerEvent('r_admin:server:showNotification', 'Pas les perms bouffon', 'error')
     return false
 end
 
