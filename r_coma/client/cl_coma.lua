@@ -29,11 +29,28 @@ local comaTimers = {
     ["unknown"] = 30  -- 30 seconds for unknown causes
 }
 
-function DisableAllControls()
-    DisableAllControlActions(0)
-    DisableAllControlActions(2)
+function DisableControls(state)
+    if state then
+        DisableControlAction(0, 37, true) -- Tab
 
-    EnableControlAction(0, 245, true) -- Chat
+        -- Bloquer les mouvements de la souris pour la caméra
+        DisableControlAction(0, 1, true) -- LookLeftRight
+        DisableControlAction(0, 2, true) -- LookUpDown
+        DisableControlAction(0, 3, true) -- LookUpDown
+        DisableControlAction(0, 4, true) -- LookLeftRight
+        DisableControlAction(0, 5, true) -- LookBehind
+        DisableControlAction(0, 6, true) -- MouseLookLeftRight
+    else
+        EnableControlAction(0, 37, true) -- Tab
+
+        -- Bloquer les mouvements de la souris pour la caméra
+        EnableControlAction(0, 1, true) -- LookLeftRight
+        EnableControlAction(0, 2, true) -- LookUpDown
+        EnableControlAction(0, 3, true) -- LookUpDown
+        EnableControlAction(0, 4, true) -- LookLeftRight
+        EnableControlAction(0, 5, true) -- LookBehind
+        EnableControlAction(0, 6, true) -- MouseLookLeftRight
+    end
 end
 
 function HandlePlayerDeath()
@@ -67,17 +84,18 @@ function ResetDeathState()
     local player = PlayerPedId()
     local coords = GetEntityCoords(player)
 
-    ClearPedTasks(player)
-    ClearPedTasksImmediately(player)
-
-    SetEntityCoords(player, coords.x, coords.y, coords.z, false, false, false, true)
+    ReviveInjuredPed(player)
+    ResurrectPed(player)
 
     SetEntityHealth(player, 150)
 
-    isDead = false
-    isInDeathState = false
-    isInDeathProcess = false
-    deathTimer = 0
+    ClearPedTasks(player)
+    ClearPedTasksImmediately(player)
+
+    SetEntityCoords(player, coords.x, coords.y, coords.z + 1.0, true, true, true, true)
+
+    SetPlayerControl(PlayerId(), true, 0)
+    FreezeEntityPosition(player, false)
 
     ClearPedBloodDamage(player)
     ClearPedWetness(player)
@@ -85,8 +103,17 @@ function ResetDeathState()
     ClearPedDamageDecalByZone(player, 0, "ALL")
 
     EnableAllControlActions(0)
-    SetPlayerControl(PlayerId(), true, 0)
+    EnableAllControlActions(1)
+    EnableAllControlActions(2)
 
+    EnableControlAction(0, 200, true)
+
+    isDead = false
+    isInDeathState = false
+    isInDeathProcess = false
+    deathTimer = 0
+
+    DisableControls(false)
     HideComaInterface()
     MakePlayerInvisibleToNPCs(false)
 end
@@ -224,10 +251,11 @@ end)
 -- Désactive les contrôles si le joueur est en état de coma
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
-
         if isInDeathProcess then
-            DisableAllControls()
+            DisableControls(true)
+            Citizen.Wait(0)
+        else
+            Citizen.Wait(500)
         end
     end
 end)
