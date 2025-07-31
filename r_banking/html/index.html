@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="bank-container" id="bankContainer">
+        <!-- Header -->
+        <div class="bank-header">
+            <div class="bank-logo">
+                <i class="fas fa-university"></i>
+                <span>Los Santos Banking</span>
+            </div>
+            <div class="user-info">
+                <span id="userName">John Doe</span>
+                <button class="close-btn" id="closeBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bank-nav">
+            <button class="nav-btn active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Tableau de bord</span>
+            </button>
+            <button class="nav-btn" data-section="transactions">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </button>
+            <button class="nav-btn" data-section="transfer">
+                <i class="fas fa-paper-plane"></i>
+                <span>Virement</span>
+            </button>
+            <button class="nav-btn" data-section="history">
+                <i class="fas fa-history"></i>
+                <span>Historique</span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="bank-content">
+            <!-- Dashboard Section -->
+            <div class="section active" id="dashboard">
+                <div class="dashboard-grid">
+                    <!-- Account Overview -->
+                    <div class="card account-overview">
+                        <div class="card-header">
+                            <h3><i class="fas fa-wallet"></i> Mes Comptes</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="accounts-list" id="accountsList">
+                                <!-- Accounts will be populated by JS -->
+                                <div class="account-item main-account">
+                                    <div class="account-info">
+                                        <div class="account-type">
+                                            <i class="fas fa-user"></i>
+                                            <span>Compte Personnel</span>
+                                        </div>
+                                        <div class="account-number">#1234567890</div>
+                                    </div>
+                                    <div class="account-balance">
+                                        <span class="balance-amount">$25,430.50</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card quick-actions">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bolt"></i> Actions Rapides</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="action-buttons">
+                                <button class="action-btn deposit-btn">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Déposer</span>
+                                </button>
+                                <button class="action-btn withdraw-btn">
+                                    <i class="fas fa-minus"></i>
+                                    <span>Retirer</span>
+                                </button>
+                                <button class="action-btn transfer-btn">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Virer</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="card recent-transactions">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Transactions Récentes</h3>
+                            <button class="view-all-btn">Voir tout</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="transactions-list" id="recentTransactions">
+                                <!-- Recent transactions will be populated by JS -->
+                                <div class="transaction-item">
+                                    <div class="transaction-icon deposit">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <div class="transaction-type">Dépôt</div>
+                                        <div class="transaction-time">Il y a 2 heures</div>
+                                    </div>
+                                    <div class="transaction-amount positive">+$1,500.00</div>
+                                </div>
+                                <div class="transaction-item">
+                                    <div class="transaction-icon transfer">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <div class="transaction-type">Virement vers John Smith</div>
+                                        <div class="transaction-time">Hier à 14:30</div>
+                                    </div>
+                                    <div class="transaction-amount negative">-$500.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Section -->
+            <div class="section" id="transactions">
+                <div class="section-header">
+                    <h2>Effectuer une Transaction</h2>
+                </div>
+
+                <div class="transaction-types">
+                    <button class="transaction-type-btn active" data-type="deposit">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Dépôt</span>
+                    </button>
+                    <button class="transaction-type-btn" data-type="withdraw">
+                        <i class="fas fa-minus-circle"></i>
+                        <span>Retrait</span>
+                    </button>
+                </div>
+
+                <div class="card transaction-form">
+                    <div class="form-group">
+                        <label for="transactionAccount">Compte</label>
+                        <select id="transactionAccount" class="form-input">
+                            <option value="">Sélectionner un compte</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transactionAmount">Montant</label>
+                        <div class="amount-input">
+                            <span class="currency">$</span>
+                            <input type="number" id="transactionAmount" class="form-input" placeholder="0.00" min="1"
+                                step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="transactionDescription">Description (optionnel)</label>
+                        <input type="text" id="transactionDescription" class="form-input"
+                            placeholder="Motif de la transaction">
+                    </div>
+                    <button class="submit-btn" id="submitTransaction">
+                        <i class="fas fa-check"></i>
+                        <span>Confirmer la Transaction</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transfer Section -->
+            <div class="section" id="transfer">
+                <div class="section-header">
+                    <h2>Effectuer un Virement</h2>
+                </div>
+
+                <div class="card transfer-form">
+                    <div class="transfer-step active" data-step="1">
+                        <div class="step-header">
+                            <div class="step-number">1</div>
+                            <h3>Informations du virement</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fromAccount">Compte à débiter</label>
+                            <select id="fromAccount" class="form-input">
+                                <option value="">Sélectionner un compte</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toAccount">Numéro de compte destinataire</label>
+                            <input type="text" id="toAccount" class="form-input" placeholder="1234567890">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="transferAmount">Montant</label>
+                            <div class="amount-input">
+                                <span class="currency">$</span>
+                                <input type="number" id="transferAmount" class="form-input" placeholder="0.00" min="1"
+                                    step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="transferDescription">Motif du virement</label>
+                            <input type="text" id="transferDescription" class="form-input"
+                                placeholder="Motif du virement">
+                        </div>
+                    </div>
+
+                    <div class="transfer-step" data-step="2">
+                        <div class="step-header">
+                            <div class="step-number">2</div>
+                            <h3>Confirmation</h3>
+                        </div>
+
+                        <div class="confirmation-details">
+                            <div class="detail-row">
+                                <span class="label">De :</span>
+                                <span class="value" id="confirmFromAccount">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Vers :</span>
+                                <span class="value" id="confirmToAccount">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Montant :</span>
+                                <span class="value highlight" id="confirmAmount">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Motif :</span>
+                                <span class="value" id="confirmDescription">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn secondary" id="transferPrevBtn" style="display: none;">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Retour</span>
+                        </button>
+                        <button class="btn primary" id="transferNextBtn">
+                            <i class="fas fa-arrow-right"></i>
+                            <span>Suivant</span>
+                        </button>
+                        <button class="submit-btn" id="confirmTransfer" style="display: none;">
+                            <i class="fas fa-check"></i>
+                            <span>Confirmer le Virement</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="section" id="history">
+                <div class="section-header">
+                    <h2>Historique des Transactions</h2>
+                    <div class="history-filters">
+                        <select id="historyAccount" class="form-input">
+                            <option value="">Tous les comptes</option>
+                        </select>
+                        <select id="historyType" class="form-input">
+                            <option value="">Tous les types</option>
+                            <option value="deposit">Dépôts</option>
+                            <option value="withdraw">Retraits</option>
+                            <option value="transfer_in">Virements reçus</option>
+                            <option value="transfer_out">Virements envoyés</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card history-table">
+                    <div class="table-container">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Montant</th>
+                                    <th>Solde après</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- History will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-pagination">
+                        <button class="btn secondary" id="prevPage">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="pagination-info" id="paginationInfo">Page 1 sur 10</span>
+                        <button class="btn secondary" id="nextPage">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirmation</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" id="modalCancel">Annuler</button>
+                <button class="btn primary" id="modalConfirm">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <span class="notification-message"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
