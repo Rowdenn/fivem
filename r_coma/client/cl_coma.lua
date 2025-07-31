@@ -32,10 +32,11 @@ local comaTimers = {
 function DisableAllControls()
     DisableAllControlActions(0)
     DisableAllControlActions(2)
+
+    EnableControlAction(0, 245, true) -- Chat
 end
 
 function HandlePlayerDeath()
-    SetPlayerInvincible(PlayerId(), true)
     isInDeathState = true
     isDead = true
 
@@ -64,9 +65,12 @@ end
 
 function ResetDeathState()
     local player = PlayerPedId()
+    local coords = GetEntityCoords(player)
 
     ClearPedTasks(player)
     ClearPedTasksImmediately(player)
+
+    SetEntityCoords(player, coords.x, coords.y, coords.z, false, false, false, true)
 
     SetEntityHealth(player, 150)
 
@@ -75,11 +79,16 @@ function ResetDeathState()
     isInDeathProcess = false
     deathTimer = 0
 
+    ClearPedBloodDamage(player)
+    ClearPedWetness(player)
+    ClearPedEnvDirt(player)
+    ClearPedDamageDecalByZone(player, 0, "ALL")
+
+    EnableAllControlActions(0)
+    SetPlayerControl(PlayerId(), true, 0)
+
     HideComaInterface()
     MakePlayerInvisibleToNPCs(false)
-
-    SetPlayerInvincible(PlayerId(), false)
-    exports['framework']:SetForcedRagdoll(true)
 end
 
 function ShowComaInterface(cat, koTime)
@@ -207,7 +216,6 @@ Citizen.CreateThread(function()
             if isInDeathState and health > 0 and not isInDeathProcess then
                 isInDeathState = false
                 isDead = false
-                SetPlayerInvincible(PlayerId(), false)
             end
         end
     end
