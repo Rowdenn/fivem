@@ -54,6 +54,7 @@ function Toggle()
     else
         LocalVisibility:RemoveEntity('noclip_player')
         LocalVisibility:RemoveEntity('noclip_vehicle')
+        SetEntityInvincible(ped, true)
 
         if NoClip.inVehicle and DoesEntityExist(NoClip.vehicle) then
             SetEntityVelocity(NoClip.vehicle, 0.0, 0.0, 0.0)
