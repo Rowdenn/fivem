@@ -17,6 +17,7 @@ local weatherTypes = {
 }
 
 local isTransitioning = false
+local selectedHour = 12
 
 function OpenWorldMenu()
     local worldMenu = MenuV:CreateMenu("Monde", false, "topright", 255, 0, 0,
@@ -41,14 +42,28 @@ function OpenWorldMenu()
         selectedWeather = weatherTypes[currentValue].label
     end)
 
-    worldMenu:AddButton({
+    local hourValues = {}
+    for i = 0, 23 do
+        table.insert(hourValues, {
+            label = string.format("%02dh", i),
+            value = i
+        })
+    end
+
+    local timeSlider = worldMenu:AddSlider({
         icon = '🕐',
         label = 'Changer l\'heure',
         description = 'Modifier l\'heure du serveur',
+        values = hourValues,
+        value = 13,
         select = function()
-            -- GetTimeForServer()
+            TriggerServerEvent('r_admin:changeTime', selectedHour)
         end
     })
+
+    timeSlider:On('change', function(uuid, key, currentValue, oldValue)
+        selectedHour = currentValue - 1
+    end)
 
     worldMenu:Open()
 end
@@ -72,4 +87,11 @@ AddEventHandler('r_admin:syncWeather', function(weather, transitionTime)
             TriggerServerEvent('r_admin:client:showNotification', "Transition de la météo terminée", 'success')
         end)
     end
+end)
+
+RegisterNetEvent('r_admin:syncTime')
+AddEventHandler('r_admin:syncTime', function(hour)
+    NetworkOverrideClockTime(hour, 0, 0)
+    TriggerServerEvent('r_admin:client:showNotification', "Heure changée pour " .. string.format("%02dh", hour),
+        "success")
 end)
