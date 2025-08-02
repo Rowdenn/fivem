@@ -76,6 +76,11 @@ function IsPlayerForceRagdoll()
     return isRagdollForced
 end
 
+function RegisterAndHandleNetEvent(event, cb)
+    RegisterNetEvent(event)
+    AddEventHandler(event, cb)
+end
+
 exports('SetForcedRagdoll', SetForcedRagdoll)
 exports('StartForcedRagdoll', StartForcedRagdoll)
 exports('StopForceRagdoll', StopForcedRagdoll)

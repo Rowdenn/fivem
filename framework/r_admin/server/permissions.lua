@@ -58,3 +58,5 @@ AddEventHandler('r_admin:refreshPermissions', function()
         playerPermissions[source] = nil
     end
 end)
+
+exports('HasPermissionServer', HasPermissionServer)

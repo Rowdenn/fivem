@@ -26,6 +26,7 @@ AdminConfig.MenuActions = {
         'freeze_player',
         'noclip',
         'spawn_vehicle'
+
     },
     [2] = {
         'goto',
@@ -42,6 +43,8 @@ AdminConfig.MenuActions = {
         'fix_vehicle',
         'god_mode',
         'invisible',
+        'create_bank_account',
+        'addbankmoney'
     },
     [3] = {
         'goto',
@@ -55,13 +58,15 @@ AdminConfig.MenuActions = {
         'fix_vehicle',
         'god_mode',
         'invisible',
+        'create_bank_account',
         'revive_player',
         'feed',
         'heal',
         'give_money',
         'server_management',
         'weather_control',
-        'time_control'
+        'time_control',
+        'addbankmoney'
     }
 }
 

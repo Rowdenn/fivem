@@ -8,7 +8,8 @@ version "1.0.0"
 
 dependencies {
 	'framework',
-	'r_notify'
+	'r_notify',
+	'r_admin'
 }
 
 shared_scripts {
