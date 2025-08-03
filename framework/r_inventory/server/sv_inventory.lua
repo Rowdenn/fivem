@@ -1,14 +1,12 @@
-local Framework = exports['framework']:GetFramework()
-
 -- Fonction pour obtenir l'inventaire d'un joueur
 function GetPlayerInventory(identifier)
     local inventory = {}
-    
+
     -- Requête SQL pour récupérer l'inventaire
-    local result = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier ORDER BY slot ASC', {
+    local result = Query('SELECT * FROM inventories WHERE identifier = @identifier ORDER BY slot ASC', {
         ['@identifier'] = identifier
     })
-    
+
     for _, item in pairs(result) do
         local itemData = GetItemData(item.item)
 
@@ -22,25 +20,25 @@ function GetPlayerInventory(identifier)
 
         table.insert(inventory, inventoryItem)
     end
-    
+
     return inventory
 end
 
 -- Fonction pour obtenir les informations d'un item
 function GetItemData(itemName)
-    local result = Framework.Database:Query('SELECT * FROM items WHERE name = @name', {
+    local result = Query('SELECT * FROM items WHERE name = @name', {
         ['@name'] = itemName
     })
-    
+
     if result[1] then
         return result[1]
     end
-    
+
     return nil
 end
 
 function GetAllItemsData()
-    local result = Framework.Database:Query('SELECT * FROM items', {})
+    local result = Query('SELECT * FROM items', {})
     local itemsData = {}
     for _, item in pairs(result) do
         itemsData[item.name] = item
@@ -50,16 +48,16 @@ end
 
 -- Fonction pour trouver un slot d'inventaire libre
 function GetFreeInventorySlot(identifier)
-    local result = Framework.Database:Query('SELECT slot FROM inventories WHERE identifier = @identifier ORDER BY slot ASC', {
+    local result = Query('SELECT slot FROM inventories WHERE identifier = @identifier ORDER BY slot ASC', {
         ['@identifier'] = identifier
     })
-    
+
     -- Créer un tableau des slots occupés
     local occupiedSlots = {}
     for _, item in pairs(result) do
         occupiedSlots[item.slot] = true
     end
-    
+
     -- Trouver le premier slot libre
     for slot = 1, 120 do
         if not occupiedSlots[slot] then
@@ -79,19 +77,21 @@ function AddItemToInventory(identifier, itemName, count, slot, metadata)
         return false, 'Inventaire plein'
     end
 
-    Framework.Database:Execute('INSERT INTO inventories (identifier, item, count, slot, metadata) VALUES (@identifier, @item, @count, @slot, @metadata)', {
-        ['@identifier'] = identifier,
-        ['@item'] = itemName,
-        ['@count'] = count,
-        ['@slot'] = slot,
-        ['@metadata'] = json.encode(metadata)
-    })
+    Execute(
+        'INSERT INTO inventories (identifier, item, count, slot, metadata) VALUES (@identifier, @item, @count, @slot, @metadata)',
+        {
+            ['@identifier'] = identifier,
+            ['@item'] = itemName,
+            ['@count'] = count,
+            ['@slot'] = slot,
+            ['@metadata'] = json.encode(metadata)
+        })
 
     return true, 'Item ajouté'
 end
 
 function RemoveItemFromInventory(identifier, slot, count)
-    local currentItem = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot', {
+    local currentItem = Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot', {
         ['@identifier'] = identifier,
         ['@slot'] = slot
     })
@@ -99,16 +99,16 @@ function RemoveItemFromInventory(identifier, slot, count)
     if not currentItem[1] or not currentItem[1].count then
         return false, 'Item introuvable'
     end
-    
+
     local newCount = currentItem[1].count - count
 
     if newCount <= 0 then
-        Framework.Database:Execute('DELETE FROM inventories WHERE identifier = @identifier AND slot = @slot', {
+        Execute('DELETE FROM inventories WHERE identifier = @identifier AND slot = @slot', {
             ['@identifier'] = identifier,
             ['@slot'] = slot
         })
     else
-        Framework.Database:Execute('UPDATE inventories SET count = @count WHERE identifier = @identifier AND slot = @slot', {
+        Execute('UPDATE inventories SET count = @count WHERE identifier = @identifier AND slot = @slot', {
             ['@count'] = newCount,
             ['@identifier'] = identifier,
             ['@slot'] = slot
@@ -120,18 +120,20 @@ end
 
 function GetPlayerWeight(identifier)
     local totalWeight = 0
-    
+
     -- Récupérer tous les items du joueur
-    local playerItems = Framework.Database:Query('SELECT i.slot, i.item, i.count, it.weight FROM inventories i JOIN items it ON i.item = it.name WHERE i.identifier = ?', {
-        identifier
-    })
-    
+    local playerItems = Query(
+        'SELECT i.slot, i.item, i.count, it.weight FROM inventories i JOIN items it ON i.item = it.name WHERE i.identifier = ?',
+        {
+            identifier
+        })
+
     if playerItems then
         for _, item in pairs(playerItems) do
             totalWeight = totalWeight + (item.weight * item.count)
         end
     end
-    
+
     return totalWeight
 end
 
@@ -140,7 +142,7 @@ function GetGroundItems(playerId)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerId))
 
     -- TODO : Ajouter la manière dont sont gérés les items au sol (certainement via db)
-    
+
     -- local itemsData = GetAllItemsData()
     -- for _, item in pairs(result or {}) do
     --     local itemData = itemsData[item.item]
@@ -151,21 +153,21 @@ function GetGroundItems(playerId)
     --         item.image = itemData.image
     --     end
     -- end
-    
+
     -- return result or {}
     return {}
 end
 
 function GetPlayerData(playerId)
     local identifier = GetPlayerIdentifier(playerId, 0)
-    
+
     return {
         weight = GetPlayerWeight(identifier),
         maxWeight = 50
     }
 end
 
-function RefreshPlayerInventory(player) 
+function RefreshPlayerInventory(player)
     local identifier = GetPlayerIdentifier(player, 0)
     Citizen.Wait(50)
 
@@ -179,14 +181,15 @@ end
 -- Ici on utilise une fonction pour toujours garder la bonne source
 function UseItem(source, slot, itemName)
     local identifier = GetPlayerIdentifier(source, 0)
-    
+
     -- Vérifie si le joueur possède l'item
-    local hasItem = Framework.Database:Query('SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot AND item = @item', {
-        ['@identifier'] = identifier,
-        ['@slot'] = slot,
-        ['@item'] = itemName
-    })
-    
+    local hasItem = Query(
+        'SELECT * FROM inventories WHERE identifier = @identifier AND slot = @slot AND item = @item', {
+            ['@identifier'] = identifier,
+            ['@slot'] = slot,
+            ['@item'] = itemName
+        })
+
     if hasItem[1] then
         local itemData = GetItemData(itemName)
 

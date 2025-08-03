@@ -1,7 +1,7 @@
 RegisterServerEvent('r_admin:client:showNotification')
 AddEventHandler('r_admin:client:showNotification', function(message, type)
     local player = source
-    exports['r_notify']:ShowNotificationToPlayer(player, {
+    ShowNotificationToPlayer(player, {
         message = message,
         type = type,
         duration = 5000
@@ -10,7 +10,7 @@ end)
 
 RegisterServerEvent('r_admin:server:showNotification')
 AddEventHandler('r_admin:server:showNotification', function(player, message, type)
-    exports['r_notify']:ShowNotificationToPlayer(player, {
+    ShowNotificationToPlayer(player, {
         message = message,
         type = type,
         duration = 5000
@@ -22,7 +22,7 @@ AddEventHandler('r_admin:kickPlayer', function(target, reason)
     local admin = source
 
     -- TODO: Ajouter la logique de kick
-    exports['r_notify']:ShowNotificationToPlayer({
+    ShowNotificationToPlayer({
         message = "Joueur " .. target .. " kick avec succès",
         type = "success",
         duration = 5000

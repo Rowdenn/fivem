@@ -1,5 +1,3 @@
-Framework = exports['framework']:GetFramework()
-
 InventoryOpen = false
 NearbyPlayers = {}
 GroundObjects = {}

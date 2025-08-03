@@ -1,5 +1,3 @@
-local metabolism = exports['r_metabolism']
-
 function CheckIfPlayerExists(target)
     if not target or not GetPlayerPed(target) then
         TriggerClientEvent('r_admin:server:showNotification', source, 'Joueur introuvable', 'error')
@@ -92,11 +90,11 @@ AddEventHandler('r_admin:feedPlayer', function(targetServerId)
     CheckIfPlayerExists(target)
 
     local targetName = GetPlayerName(target)
-    local playerMetabolism = metabolism:getPlayerMetabolism(target)
+    local playerMetabolism = GetPlayerMetabolism(target)
 
     if playerMetabolism then
-        metabolism:addHunger(target, (100 - playerMetabolism.hunger))
-        metabolism:addThirst(target, (100 - playerMetabolism.thirst))
+        AddHunger(target, (100 - playerMetabolism.hunger))
+        AddThirst(target, (100 - playerMetabolism.thirst))
 
         TriggerEvent('r_admin:server:showNotification', source, 'Vous avez nourri ' .. targetName, 'success')
         TriggerEvent('r_admin:server:showNotification', target, 'Vous avez été nourri', 'success')

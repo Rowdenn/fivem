@@ -1,4 +1,3 @@
-local Framework = exports['framework']:GetFramework()
 local playerMetabolism = {}
 
 local Config = {
@@ -7,6 +6,24 @@ local Config = {
     thirstDecrease = 2,
     warningThreshold = 10
 }
+
+function AddHunger(playerId, amount)
+    if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
+        playerMetabolism[playerId].hunger = math.min(100, math.max(0, playerMetabolism[playerId].hunger + amount))
+        TriggerClientEvent('r_metabolism:updateValues', playerId, playerMetabolism[playerId])
+    end
+end
+
+function AddThirst(playerId, amount)
+    if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
+        playerMetabolism[playerId].thirst = math.min(100, math.max(0, playerMetabolism[playerId].thirst + amount))
+        TriggerClientEvent('r_metabolism:updateValues', playerId, playerMetabolism[playerId])
+    end
+end
+
+function GetPlayerMetabolism(playerId)
+    return playerMetabolism[playerId]
+end
 
 RegisterServerEvent('r_metabolism:playerLoaded')
 AddEventHandler('r_metabolism:playerLoaded', function()
@@ -20,7 +37,7 @@ AddEventHandler('r_metabolism:playerLoaded', function()
         return
     end
 
-    Framework.Database:Query('SELECT hunger, thirst FROM users WHERE identifier = ?', { identifier }, function(result)
+    Query('SELECT hunger, thirst FROM users WHERE identifier = ?', { identifier }, function(result)
         if DoesPlayerExist(source) then
             if source ~= nil then
                 playerMetabolism[source] = {
@@ -47,7 +64,7 @@ Citizen.CreateThread(function()
                 data.thirst = math.max(0, data.thirst - Config.thirstDecrease)
 
                 if data.hunger == 10 then
-                    exports['r_notify']:ShowNotificationToPlayer(playerId, {
+                    ShowNotificationToPlayer(playerId, {
                         message = "Vous avez très faim",
                         type = 'error',
                         duration = 5000
@@ -55,7 +72,7 @@ Citizen.CreateThread(function()
                 end
 
                 if data.thirst == 10 then
-                    exports['r_notify']:ShowNotificationToPlayer(playerId, {
+                    ShowNotificationToPlayer(playerId, {
                         message = "Vous avez très soif",
                         type = 'error',
                         duration = 5000
@@ -108,7 +125,7 @@ AddEventHandler('playerDropped', function()
     if source ~= nil then
         if playerMetabolism[source] and playerMetabolism[source].isLoaded then
             local data = playerMetabolism[source]
-            Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
+            Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
                 data.hunger,
                 data.thirst,
                 data.identifier
@@ -122,7 +139,7 @@ AddEventHandler('onResourceStop', function(resource)
     if GetCurrentResourceName() == resource then
         for playerId, data in pairs(playerMetabolism) do
             if data.isLoaded and DoesPlayerExist(playerId) then
-                Framework.Database:Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
+                Execute('UPDATE users SET hunger = ?, thirst = ? WHERE identifier = ?', {
                     data.hunger,
                     data.thirst,
                     data.identifier
@@ -130,22 +147,4 @@ AddEventHandler('onResourceStop', function(resource)
             end
         end
     end
-end)
-
-exports('addHunger', function(playerId, amount)
-    if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
-        playerMetabolism[playerId].hunger = math.min(100, math.max(0, playerMetabolism[playerId].hunger + amount))
-        TriggerClientEvent('r_metabolism:updateValues', playerId, playerMetabolism[playerId])
-    end
-end)
-
-exports('addThirst', function(playerId, amount)
-    if playerMetabolism[playerId] and playerMetabolism[playerId].isLoaded then
-        playerMetabolism[playerId].thirst = math.min(100, math.max(0, playerMetabolism[playerId].thirst + amount))
-        TriggerClientEvent('r_metabolism:updateValues', playerId, playerMetabolism[playerId])
-    end
-end)
-
-exports('getPlayerMetabolism', function(playerId)
-    return playerMetabolism[playerId]
 end)

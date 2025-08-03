@@ -1,8 +1,7 @@
-local Framework = exports['framework']:GetFramework()
 local playerPermissions = {}
 
 function HasPermissionServer(source, requiredAction)
-    local permissionLevel = Framework.Player:GetPermissionsLevel(source)
+    local permissionLevel = GetPermissionsLevel(source)
     print(permissionLevel)
 
     for _, action in ipairs(AdminConfig.MenuActions[permissionLevel]) do
@@ -18,7 +17,7 @@ end
 RegisterServerEvent('r_admin:getPermissionLevel')
 AddEventHandler('r_admin:getPermissionLevel', function()
     local player = source
-    local permissionLevel = Framework.Player:GetPermissionsLevel(player)
+    local permissionLevel = GetPermissionsLevel(player)
 
     TriggerClientEvent('r_admin:receivePermissionLevel', player, permissionLevel)
 end)
@@ -26,13 +25,13 @@ end)
 RegisterServerEvent('r_admin:checkPermissions')
 AddEventHandler('r_admin:checkPermissions', function()
     local player = source
-    local permissionLevel = Framework.Player:GetPermissionsLevel(player)
+    local permissionLevel = GetPermissionsLevel(player)
     print("Le niveau de privilège du joueur est: ", permissionLevel)
 
     if permissionLevel >= 1 then
         TriggerClientEvent('r_admin:openMenu', player, permissionLevel)
     else
-        exports['r_notify']:ShowNotificationToPlayer(player, {
+        ShowNotificationToPlayer(player, {
             message = "Vous n'avez pas accès à ce menu",
             type = "error",
             duration = 5000
@@ -58,5 +57,3 @@ AddEventHandler('r_admin:refreshPermissions', function()
         playerPermissions[source] = nil
     end
 end)
-
-exports('HasPermissionServer', HasPermissionServer)
