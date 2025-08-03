@@ -12,7 +12,8 @@ function ShowNotification(data)
     data.image = data.image or nil
 
     SendNUIMessage({
-        action = "showNotification",
+        action = "showModule",
+        module = 'notify',
         data = data
     })
 end
@@ -21,5 +22,3 @@ RegisterNetEvent('r_notify:showNotification')
 AddEventHandler('r_notify:showNotification', function(data)
     ShowNotification(data)
 end)
-
-exports('ShowNotification', ShowNotification)

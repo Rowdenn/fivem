@@ -119,33 +119,32 @@ function ResetDeathState()
 end
 
 function ShowComaInterface(cat, koTime)
-    if not uiOpen then
-        SetNuiFocus(false, false)
-        SendNUIMessage({
-            action = "showDeath",
+    SetNuiFocus(false, false)
+    SendNUIMessage({
+        action = "loadUI",
+        module = 'coma',
+        data = {
             cat = cat,
             koTime = koTime
-        })
-        uiOpen = true
-    end
+        }
+    })
 end
 
 function HideComaInterface()
-    if uiOpen then
-        SendNUIMessage({
-            action = "hideDeath"
-        })
-        uiOpen = false
-    end
+    SendNUIMessage({
+        action = "closeUI",
+        module = 'coma'
+    })
 end
 
 function UpdateComaInterface(timeLeft)
-    if uiOpen then
-        SendNUIMessage({
-            action = "updateTimer",
+    SendNUIMessage({
+        action = "updateUI",
+        module = 'coma',
+        data = {
             timeLeft = timeLeft
-        })
-    end
+        }
+    })
 end
 
 function StartDeathProcess(cat, koTime)

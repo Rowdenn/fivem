@@ -1,11 +1,3 @@
-RegisterNetEvent('r_inventory:updateInventory')
-AddEventHandler('r_inventory:updateInventory', function(inventory)
-    SendNUIMessage({
-        type = 'updateInventory',
-        inventory = inventory
-    })
-end)
-
 RegisterNetEvent('r_inventory:updateGroundItems')
 AddEventHandler('r_inventory:updateGroundItems', function(groundItems)
     GroundItemsData = groundItems
@@ -16,10 +8,7 @@ AddEventHandler('r_inventory:updateGroundItems', function(groundItems)
         end
     end
 
-    SendNUIMessage({
-        type = 'updateGroundItems',
-        groundItems = groundItems
-    })
+    UpdateGroundItemsUI(groundItems)
 end)
 
 RegisterNetEvent('r_inventory:removeGroundItem')
@@ -34,27 +23,25 @@ AddEventHandler('r_inventory:removeGroundItem', function(itemId)
     end
 
     if InventoryOpen then
-        SendNUIMessage({
-            type = 'updateGroundItems',
-            groundItems = GroundItemsData
-        })
+        UpdateGroundItemsUI(GroundItemsData)
     end
 end)
 
 RegisterNetEvent('r_inventory:updatePlayerData')
 AddEventHandler('r_inventory:updatePlayerData', function(data)
     playerData = data
-    SendNUIMessage({
-        type = 'updatePlayerData',
-        playerData = data
-    })
+    UpdatePlayerDataUI(data)
 end)
 
 RegisterNetEvent('r_inventory:itemInfo')
 AddEventHandler('r_inventory:itemInfo', function(itemData)
     SendNUIMessage({
-        type = 'itemInfo',
-        itemData = itemData
+        action = 'updateUI',
+        module = 'inventory',
+        data = {
+            type = 'itemInfo',
+            itemData = itemData
+        }
     })
 end)
 
@@ -64,8 +51,12 @@ AddEventHandler('r_inventory:addGroundItem', function(newItem)
     SpawnGroundItem(newItem)
 
     SendNUIMessage({
-        type = 'addGroundItem',
-        groundItem = newItem
+        action = 'updateUI',
+        module = 'inventory',
+        data = {
+            type = 'addGroundItem',
+            groundItem = newItem
+        }
     })
 end)
 
@@ -95,10 +86,33 @@ AddEventHandler('r_inventory:updateAllGroundItems', function(allGroundItems)
     end
 end)
 
-RegisterNetEvent('r_inventory:getPlayerInventory')
-AddEventHandler('r_inventory:getPlayerInventory', function(playerData)
-    SendNUIMessage({
-        type = 'updatePlayerModel',
-        groundItem = playerData
-    })
+RegisterAndHandleNetEvent('r_inventory:updateInventory', function(inventory)
+    -- Toujours mettre à jour l'interface avec les nouvelles données, même si déjà chargée
+    if InventoryOpen then
+        -- Si c'est la première fois et qu'on a des vraies données, afficher avec les données
+        if not InventoryLoaded then
+            SendNUIMessage({
+                action = 'loadUI',
+                module = 'inventory',
+                data = {
+                    type = 'openInventory',
+                    playerInventory = inventory,
+                    groundItems = GroundItemsForInventory or {},
+                    playerData = playerData or { weight = 0 }
+                }
+            })
+            InventoryLoaded = true
+        else
+            print('DEBUG: Mise à jour avec update')
+            -- Sinon, juste mettre à jour les données existantes
+            SendNUIMessage({
+                action = 'updateUI',
+                module = 'inventory',
+                data = {
+                    type = 'updateInventory',
+                    inventory = inventory
+                }
+            })
+        end
+    end
 end)

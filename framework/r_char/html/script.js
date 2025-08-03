@@ -1,6 +1,29 @@
 let currentCharacter = {};
 let isEditingChestHair = false;
 
+window.addEventListener('message', function (event) {
+    const data = event.data;
+
+    if (data.module === 'character') {
+        console.log('Message reçu:', JSON.stringify(data));
+    }
+
+    switch (data.action) {
+        case 'init':
+            if (data.module === 'character' && data.data) {
+                document.getElementById('character-creator').classList.remove('hidden');
+                if (data.data.character) {
+                    currentCharacter = data.data.character;
+                    updateUI();
+                }
+            }
+            break;
+        case 'closeUI':
+            document.getElementById('character-creator').classList.add('hidden');
+            break;
+    }
+});
+
 function formatDate(string) {
     if (!string) return "";
 
@@ -25,17 +48,17 @@ function updateCharacterValue(element) {
     } else {
         value = parseInt(element.value)
     }
-    
+
     currentCharacter[key] = value;
-    
+
     const valueSpan = document.getElementById(key + '_value');
     if (valueSpan) {
         valueSpan.textContent = value;
     }
 
     const showChest = (key == 'chest_hair' || key == 'chest_hair_color');
-    
-    fetch('https://r_char/updateCharacter', {
+
+    fetch(`https://${GetParentResourceName()}/updateCharacter`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -52,7 +75,7 @@ function updateUI() {
         const element = document.getElementById(key);
         if (element) {
             element.value = currentCharacter[key];
-            
+
             const valueSpan = document.getElementById(key + '_value');
             if (valueSpan) {
                 valueSpan.textContent = currentCharacter[key];
@@ -64,18 +87,27 @@ function updateUI() {
 function initializeCreator() {
     const inputs = document.querySelectorAll('input[type="range"], input[type="text"], input[type="date"], select');
     inputs.forEach(input => {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             updateCharacterValue(this);
         });
-        
+
         const valueSpan = document.getElementById(input.id + '_value');
         if (valueSpan) {
             valueSpan.textContent = input.value;
         }
     });
-    
-    document.getElementById('save-btn').addEventListener('click', function() {
-        fetch('https://r_char/finishCreation', {
+
+    // Event listeners pour les onglets
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            const tabName = this.dataset.tab;
+            showTab(tabName, e);
+        });
+    });
+
+    document.getElementById('save-btn').addEventListener('click', function () {
+        fetch(`https://${GetParentResourceName()}/finishCreation`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -83,9 +115,9 @@ function initializeCreator() {
             body: JSON.stringify(currentCharacter)
         });
     });
-    
-    document.getElementById('cancel-btn').addEventListener('click', function() {
-        fetch('https://r_char/cancelCreation', {
+
+    document.getElementById('cancel-btn').addEventListener('click', function () {
+        fetch(`https://${GetParentResourceName()}/cancelCreation`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -95,27 +127,9 @@ function initializeCreator() {
     });
 }
 
-window.addEventListener('message', function(event) {
-    const data = event.data;
-    
-    switch(data.type) {
-        case 'openCreator':
-            document.getElementById('character-creator').classList.remove('hidden');
-            if (data.character) {
-                currentCharacter = data.character;
-                updateUI();
-            }
-            break;
-            
-        case 'closeCreator':
-            document.getElementById('character-creator').classList.add('hidden');
-            break;
-    }
-});
-
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
-        fetch('https://r_char/cancelCreation', {
+        fetch(`https://${GetParentResourceName()}/cancelCreation`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -127,16 +141,18 @@ document.addEventListener('keydown', function(event) {
 
 document.addEventListener('DOMContentLoaded', initializeCreator());
 
-function showTab(tabName) {
+function showTab(tabName, event) {
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(tab => tab.classList.remove('active'));
-    
+
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => button.classList.remove('active'));
-    
+
     document.getElementById(tabName).classList.add('active');
-    
-    event.target.classList.add('active');
+
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
 }
 
 let currentZoom = 0.0;
@@ -173,7 +189,7 @@ function isInNoZoomZone(element) {
     return false;
 }
 
-document.addEventListener('wheel', function(event) {
+document.addEventListener('wheel', function (event) {
     if (isInNoZoomZone(event.target)) {
         return;
     }
@@ -183,7 +199,7 @@ document.addEventListener('wheel', function(event) {
     } else {
         currentZoom = Math.max(minZoom, currentZoom - zoomStep);
     }
-    
+
     fetch(`https://${GetParentResourceName()}/updateZoom`, {
         method: 'POST',
         headers: {
@@ -201,7 +217,7 @@ const rotationStep = 90;
 function rotatePlayer(direction) {
     let newRotation = currentRotation
 
-    switch(direction) {
+    switch (direction) {
         case 'left':
             newRotation = currentRotation - rotationStep
             break;
@@ -235,12 +251,12 @@ function rotatePlayer(direction) {
     });
 }
 
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (isInNoZoomZone(event.target)) {
         return
     }
 
-    switch(event.key) {
+    switch (event.key) {
         case 'ArrowLeft':
         case 'q':
         case 'Q':

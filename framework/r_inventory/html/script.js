@@ -11,15 +11,65 @@ const DRAG_THRESHOLD = 5;
 let groundItemsForInventory = [];
 let allGroundItems = [];
 
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
     const data = event.data;
-    
-    switch(data.type) {
+
+    if (data.module === 'inventory') {
+        console.log('[Inventory Module] Message reçu:', JSON.stringify(data));
+    }
+
+    // Gestion des événements du loader UI
+    switch (data.action) {
+        case 'init':
+            if (data.module === 'inventory' && data.data) {
+                console.log('[Inventory Module] Initialisation avec données:', data.data);
+                console.log('[Inventory Module] playerInventory length:', data.data.playerInventory ? data.data.playerInventory.length : 'undefined');
+                openInventory(data.data);
+            }
+            break;
+
+        case 'update':
+            if (data.module === 'inventory' && data.data) {
+                console.log('[Inventory Module] Mise à jour avec données:', JSON.stringify(data.data));
+                handleUpdate(data.data);
+                // S'assurer que l'inventaire est visible quand on reçoit des données
+                if (!inventoryOpen && (data.data.type === 'updateInventory' || data.data.type === 'openInventory')) {
+                    showInventory();
+                }
+            }
+            break;
+
+        case 'show':
+            if (data.module === 'inventory') {
+                console.log('[Inventory Module] Affichage du module');
+                showInventory();
+            }
+            break;
+
+        case 'hideModule':
+            if (data.module === 'inventory') {
+                console.log('[Inventory Module] Masquage du module');
+                hideInventory();
+                inventoryOpen = false; // S'assurer que le flag est correct
+            }
+            break;
+
+        case 'closeUI':
+            if (data.module === 'inventory') {
+                console.log('[Inventory Module] Fermeture du module');
+                closeInventory();
+            }
+            break;
+    }
+});
+
+function handleUpdate(data) {
+    switch (data.type) {
         case 'openInventory':
             openInventory(data);
             break;
         case 'closeInventory':
-            closeInventory();   
+            closeInventory();
             break;
         case 'updateInventory':
             updateInventory(data.inventory);
@@ -33,8 +83,44 @@ window.addEventListener('message', function(event) {
         case 'addGroundItem':
             addGroundItem(data.groundItem);
             break;
+        case 'itemInfo':
+            handleItemInfo(data.itemData);
+            break;
+        case 'updatePlayerModel':
+            handlePlayerModel(data.groundItem);
+            break;
     }
-});
+}
+
+function showInventory() {
+    const container = document.getElementById('inventory-container');
+    if (container) {
+        container.classList.remove('hidden');
+        container.style.display = 'block';
+    }
+
+    inventoryOpen = true;
+}
+
+function hideInventory() {
+    const container = document.getElementById('inventory-container');
+    if (container) {
+        container.classList.add('hidden');
+        container.style.display = 'none';
+    }
+
+    inventoryOpen = false;
+}
+
+function handleItemInfo(itemData) {
+    // Gérer les informations d'item si nécessaire
+    console.log('[Inventory Module] Informations d\'item reçues:', itemData);
+}
+
+function handlePlayerModel(playerData) {
+    // Gérer la mise à jour du modèle du joueur si nécessaire
+    console.log('[Inventory Module] Données du joueur reçues:', playerData);
+}
 
 // ! EXEMPLE POUR REFRESH LE PERSO APRES UNE ACTION
 function onItemEquipped() {
@@ -45,62 +131,82 @@ function onItemEquipped() {
 }
 
 function openInventory(data = {}) {
+    console.log('[Inventory Module] openInventory appelé avec data:', data);
+
     // Nettoyer d'abord tout état de drag précédent
     cleanupDrag();
-    
+
     inventoryOpen = true;
-    
+
     document.getElementById('inventory-container').classList.remove('hidden');
 
     refreshCharacterDisplay();
 
     generateInventorySlots();
     generateGroundSlots();
-    
+
+    // Mettre à jour avec les données reçues
+    if (data.playerInventory) {
+        console.log('[Inventory Module] Mise à jour playerInventory avec', data.playerInventory.length, 'items');
+        playerInventory = data.playerInventory;
+        updatePlayerSlots();
+    }
+
+    if (data.groundItems) {
+        console.log('[Inventory Module] Mise à jour groundItems avec', data.groundItems.length, 'items');
+        groundItemsForInventory = data.groundItems;
+        updateGroundSlots();
+    }
+
+    if (data.playerData) {
+        console.log('[Inventory Module] Mise à jour playerData');
+        updatePlayerInfo(data.playerData);
+    }
+
     // Setup le drag and drop APRÈS avoir généré les slots
     setupDragAndDrop();
 }
 
 function closeInventory() {
     inventoryOpen = false;
-    
+
     // Cleanup complet du drag avant de fermer
     cleanupDrag();
-    
+
     // Supprimer tous les event listeners de drag
     document.removeEventListener('mousedown', handleMouseDown);
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
     document.removeEventListener('dragstart', preventDragStart);
-    
+
     // Nettoyer tous les éléments de drag qui pourraient rester
     document.querySelectorAll('.drag-preview').forEach(el => {
         if (el.parentNode) {
             document.body.removeChild(el);
         }
     });
-    
+
     document.querySelectorAll('.dragging').forEach(el => {
         el.classList.remove('dragging');
         el.style.transform = '';
         el.style.opacity = '';
         el.style.transition = '';
     });
-    
+
     document.querySelectorAll('.drag-over').forEach(el => {
         el.classList.remove('drag-over');
     });
-    
+
     // Restaurer les styles du body
     document.body.style.cursor = 'default';
     document.body.style.userSelect = 'auto';
-    
+
     // Fermer l'inventaire
     document.getElementById('inventory-container').classList.add('hidden');
     selectedSlot = null;
     draggedItem = null;
     updateItemInfo(null);
-    
+
     // Réinitialiser les variables de drag
     isDragging = false;
     dragElement = null;
@@ -114,19 +220,19 @@ function closeInventory() {
 function generateInventorySlots() {
     const playerGrid = document.getElementById('player-grid');
     playerGrid.innerHTML = '';
-    
+
     for (let i = 1; i <= 120; i++) {
         const slot = document.createElement('div');
         slot.className = 'inventory-slot';
         slot.dataset.slot = i;
         slot.dataset.type = 'player';
-        
+
         // Set les 5 premiers slots en tant que quick slots
         if (i <= 5) {
             slot.classList.add('quick-slot');
             slot.dataset.key = i;
         }
-        
+
         slot.addEventListener('click', () => selectSlot(i, 'player'));
         playerGrid.appendChild(slot);
     }
@@ -135,7 +241,7 @@ function generateInventorySlots() {
 function generateGroundSlots(item, index) {
     const groundGrid = document.getElementById('ground-grid');
     groundGrid.innerHTML = '';
-    
+
     // Générer les slots pour les items au sol
     for (let i = 1; i <= 50; i++) {
         const slot = document.createElement('div');
@@ -151,21 +257,21 @@ function generateGroundSlots(item, index) {
 }
 
 function getImagePath(imageItem) {
-    return `nui://r_inventory/html/images/${imageItem}`;
+    return `nui://framework/r_inventory/html/images/${imageItem}`;
 }
 
 function createItemImage(item, slot) {
     const existingImg = slot.querySelector('.item-image');
     if (existingImg) {
-        existingImg.remove();   
+        existingImg.remove();
     }
 
     const itemImg = document.createElement('img');
     itemImg.className = 'item-image';
     itemImg.alt = item.label || item.item;
-    
+
     let errorCount = 0;
-    itemImg.onerror = function() {
+    itemImg.onerror = function () {
         errorCount++;
         if (errorCount === 1) {
             console.warn(`Image not found for item: ${item.item} (${item.image})`);
@@ -188,7 +294,7 @@ function createItemImage(item, slot) {
 function updatePlayerSlots() {
     const playerGrid = document.getElementById('player-grid');
     if (!playerGrid) return;
-    
+
     const slots = playerGrid.querySelectorAll('.inventory-slot');
     slots.forEach(slot => {
         slot.innerHTML = '';
@@ -197,7 +303,7 @@ function updatePlayerSlots() {
         slot.removeAttribute('data-count');
         slot.style.cursor = 'default';
     });
-    
+
     playerInventory.forEach((item, index) => {
         const slot = playerGrid.querySelector(`[data-slot="${item.slot}"]`);
 
@@ -206,7 +312,7 @@ function updatePlayerSlots() {
             slot.setAttribute('data-item', item.item);
             slot.setAttribute('data-count', item.count);
             slot.style.cursor = 'grab';
-            
+
             const itemImg = createItemImage(item, slot);
             slot.appendChild(itemImg);
 
@@ -225,7 +331,7 @@ function updateGroundSlots() {
     if (!groundGrid) return;
 
     groundGrid.innerHTML = '';
-    
+
     // Utiliser les items proches pour l'inventaire
     groundItemsForInventory.forEach((item, index) => {
         const slot = document.createElement('div');
@@ -255,29 +361,29 @@ function selectSlot(slotNumber, type) {
     if (selectedSlot) {
         selectedSlot.element.classList.remove('selected');
     }
-    
+
     const slotElement = document.querySelector(`#${type}-grid [data-slot="${slotNumber}"]`);
     if (slotElement) {
         slotElement.classList.add('selected');
-        
+
         selectedSlot = {
             number: slotNumber,
             type: type,
             element: slotElement
         };
-        
+
         slotElement.style.transform = 'scale(1.05)';
         setTimeout(() => {
             slotElement.style.transform = 'scale(1)';
         }, 200);
-        
+
         let itemData = null;
         if (type === 'player') {
             itemData = playerInventory.find(item => item.slot === slotNumber);
         } else {
             itemData = groundItems[slotNumber - 1];
         }
-        
+
         updateItemInfo(itemData);
     }
 }
@@ -285,7 +391,7 @@ function selectSlot(slotNumber, type) {
 function updateItemInfo(itemData) {
     const useBtn = document.getElementById('use-item');
     const giveBtn = document.getElementById('give-item');
-    
+
     if (itemData) {
         useBtn.classList.add('active');
         giveBtn.classList.add('active');
@@ -325,26 +431,26 @@ function removeGroundItem(itemId) {
 function updatePlayerInfo(playerData) {
     const currentWeight = document.getElementById('current-weight');
     const maxWeight = document.getElementById('max-weight');
-    
+
     if (currentWeight) currentWeight.textContent = playerData.weight || 0;
     if (maxWeight) maxWeight.textContent = playerData.maxWeight || 50;
 }
 
-function updateInventory(inventory) {   
+function updateInventory(inventory) {
     inventory.forEach(newItem => {
         const oldItem = playerInventory.find(item => item.slot === newItem.slot);
         if (oldItem && oldItem.image && !newItem.image) {
             newItem.image = oldItem.image; // Conserver l'image de l'ancien item
         }
     });
-    
+
     playerInventory = inventory;
     updatePlayerSlots();
 }
 
 function updateGroundItems(items) {
     groundItemsForInventory = items;
-    
+
     // Mettre à jour seulement si l'inventaire est ouvert
     if (inventoryOpen) {
         updateGroundSlots();
@@ -359,8 +465,11 @@ let dragOffset = { x: 0, y: 0 };
 let draggedItem = null;
 let animationFrameId = null;
 let mousePosition = { x: 0, y: 0 };
+let dragAndDropSetup = false;
 
 function setupDragAndDrop() {
+    if (dragAndDropSetup) return; // Éviter de recréer les event listeners
+
     document.removeEventListener('mousedown', handleMouseDown);
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
@@ -370,22 +479,24 @@ function setupDragAndDrop() {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('dragstart', preventDragStart);
+
+    dragAndDropSetup = true;
 }
 
 function handleMouseDown(e) {
     const slot = e.target.closest('.inventory-slot');
     if (slot && slot.classList.contains('has-item')) {
         e.preventDefault();
-        
+
         const currentTime = Date.now();
         const timeDiff = currentTime - lastClickTime;
         lastClickTime = currentTime;
-        
+
         // Stocker la position initiale
         dragStartPosition.x = e.clientX;
         dragStartPosition.y = e.clientY;
         isDragStarted = false;
-        
+
         // Gérer le double-clic (moins de 300ms entre les clics)
         if (timeDiff < 300) {
             clickCount++;
@@ -398,7 +509,7 @@ function handleMouseDown(e) {
         } else {
             clickCount = 1;
         }
-        
+
         // Préparer le drag immédiatement (sans délai)
         prepareDrag(e, slot);
     }
@@ -417,14 +528,14 @@ function prepareDrag(e, slot) {
     if (slot.dataset.type === 'ground' && slot.dataset.groundId) {
         draggedItem.id = parseInt(slot.dataset.groundId);
     }
-    
+
     dragElement = slot;
-    
+
     // Calculer l'offset de la souris par rapport au slot
     const rect = slot.getBoundingClientRect();
     dragOffset.x = e.clientX - rect.left;
     dragOffset.y = e.clientY - rect.top;
-    
+
     // Ajouter un état de préparation
     slot.classList.add('drag-ready');
     document.body.style.userSelect = 'none';
@@ -432,21 +543,21 @@ function prepareDrag(e, slot) {
 
 function startDrag(e) {
     if (isDragStarted || !dragElement) return;
-    
+
     isDragStarted = true;
     isDragging = true;
     clickCount = 0; // Annuler le double-clic si on commence à draguer
-    
+
     // Supprimer l'état de préparation
     dragElement.classList.remove('drag-ready');
-    
+
     // Créer un élément de prévisualisation
     createDragPreview(e);
-    
+
     // Ajouter les classes CSS
     dragElement.classList.add('dragging');
     document.body.style.cursor = 'grabbing';
-    
+
     // Démarrer l'animation frame
     startDragAnimation();
 }
@@ -454,13 +565,13 @@ function startDrag(e) {
 function handleDoubleClick(slot) {
     // Nettoyer tout état de drag
     cleanupDrag();
-    
+
     // Utiliser l'item
     const slotNum = parseInt(slot.dataset.slot);
-    const itemData = slot.dataset.type === 'player' ? 
-        playerInventory.find(item => item.slot === slotNum) : 
+    const itemData = slot.dataset.type === 'player' ?
+        playerInventory.find(item => item.slot === slotNum) :
         groundItems[slotNum - 1];
-    
+
     if (itemData) {
         fetch(`https://${GetParentResourceName()}/useItem`, {
             method: 'POST',
@@ -476,18 +587,18 @@ function handleDoubleClick(slot) {
 function handleMouseMove(e) {
     if (draggedItem && dragElement) {
         e.preventDefault();
-        
+
         // Calculer la distance parcourue
         const distance = Math.sqrt(
-            Math.pow(e.clientX - dragStartPosition.x, 2) + 
+            Math.pow(e.clientX - dragStartPosition.x, 2) +
             Math.pow(e.clientY - dragStartPosition.y, 2)
         );
-        
+
         // Si on dépasse le seuil et qu'on n'a pas encore commencé le drag
         if (distance > DRAG_THRESHOLD && !isDragStarted) {
             startDrag(e);
         }
-        
+
         // Mettre à jour la position si le drag a commencé
         if (isDragStarted) {
             mousePosition.x = e.clientX;
@@ -502,7 +613,7 @@ function handleMouseUp(e) {
         clearTimeout(clickTimeout);
         clickTimeout = null;
     }
-    
+
     // Si on n'a pas bougé assez pour draguer, c'est un simple clic
     if (draggedItem && !isDragStarted) {
         // Attendre un peu pour voir si c'est un double-clic
@@ -511,24 +622,24 @@ function handleMouseUp(e) {
         }, 250);
         return;
     }
-    
+
     if (isDragStarted && draggedItem) {
         e.preventDefault();
-        
+
         // Trouver l'élément sous la souris
         const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
         const targetSlot = elementBelow ? elementBelow.closest('.inventory-slot') : null;
-        
+
         if (targetSlot && draggedItem && targetSlot !== dragElement) {
             const targetSlotNum = parseInt(targetSlot.dataset.slot);
             const targetType = targetSlot.dataset.type;
-    
-            
+
+
             // Vérifier si c'est pas le même slot
             if (draggedItem.slot !== targetSlotNum || draggedItem.type !== targetType) {
                 // Animation de succès
                 animateItemDrop(targetSlot, true);
-                
+
                 // Transfert du sol vers l'inventaire
                 if (draggedItem.type === 'ground' && targetType === 'player') {
                     transferGroundToPlayer(draggedItem, targetSlot);
@@ -552,7 +663,7 @@ function handleMouseUp(e) {
                         })
                     });
                 }
-                
+
                 setTimeout(() => {
                     cleanupDrag();
                 }, 200);
@@ -576,7 +687,7 @@ function handleMouseUp(e) {
             }
         }
     }
-    
+
     cleanupDrag();
 }
 
@@ -592,18 +703,18 @@ function handleTransfer(draggedItem, targetSlot) {
 
 function transferGroundToPlayer(draggedItem, targetSlot) {
     const targetSlotNum = parseInt(targetSlot.dataset.slot);
-    
+
     // Vérifier si l'ID existe
     if (!draggedItem.id) {
         console.error('ERREUR: groundItemId manquant!', draggedItem);
         return;
     }
-    
+
     if (targetSlot.classList.contains('has-item')) {
         const targetItem = targetSlot.dataset.item;
-        
+
         if (targetItem === draggedItem.item) {
-            fetch(`https://r_inventory/stackGroundToPlayer`, {
+            fetch(`https://${GetParentResourceName()}/stackGroundToPlayer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -614,7 +725,7 @@ function transferGroundToPlayer(draggedItem, targetSlot) {
             });
         }
     } else {
-        fetch(`https://r_inventory/pickupItem`, {
+        fetch(`https://${GetParentResourceName()}/pickupItem`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -647,30 +758,30 @@ function startDragAnimation() {
             // Mise à jour fluide de la position
             const newX = mousePosition.x - dragOffset.x;
             const newY = mousePosition.y - dragOffset.y;
-            
+
             // Utiliser transform pour de meilleures performances
             dragPreview.style.transform = `translate(${newX}px, ${newY}px) rotate(5deg)`;
-            
+
             // Mettre en surbrillance le slot cible
             updateDragHighlight();
-            
+
             // Continuer l'animation
             animationFrameId = requestAnimationFrame(animate);
         }
     }
-    
+
     animationFrameId = requestAnimationFrame(animate);
 }
 
 function updateDragHighlight() {
     const elementBelow = document.elementFromPoint(mousePosition.x, mousePosition.y);
     const targetSlot = elementBelow ? elementBelow.closest('.inventory-slot') : null;
-    
+
     // Supprimer les anciens highlights
     document.querySelectorAll('.drag-over').forEach(el => {
         el.classList.remove('drag-over');
     });
-    
+
     // Ajouter le highlight au slot cible
     if (targetSlot && targetSlot !== dragElement) {
         targetSlot.classList.add('drag-over');
@@ -685,12 +796,12 @@ function createDragPreview(e) {
         }
         dragPreview = null;
     }
-    
+
     if (dragElement) {
         dragPreview = dragElement.cloneNode(true);
         dragPreview.classList.add('drag-preview');
         dragPreview.classList.remove('dragging'); // Enlever la classe dragging du clone
-        
+
         // Styles optimisés pour les performances
         Object.assign(dragPreview.style, {
             position: 'fixed',
@@ -705,23 +816,23 @@ function createDragPreview(e) {
             transition: 'none',
             willChange: 'transform'
         });
-        
+
         document.body.appendChild(dragPreview);
     }
 }
 
 function animateItemDrop(targetElement, success) {
     if (!dragPreview || !targetElement) return;
-    
+
     const targetRect = targetElement.getBoundingClientRect();
     const targetX = targetRect.left + targetRect.width / 2 - 25;
     const targetY = targetRect.top + targetRect.height / 2 - 25;
-    
+
     // Animation fluide vers la cible
     dragPreview.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
     dragPreview.style.transform = `translate(${targetX}px, ${targetY}px) rotate(0deg) scale(${success ? 1.1 : 0.9})`;
     dragPreview.style.opacity = success ? '1' : '0.3';
-    
+
     // Effet visuel sur le slot cible
     if (success) {
         targetElement.classList.add('drop-success');
@@ -734,19 +845,19 @@ function animateItemDrop(targetElement, success) {
 function cleanupDrag() {
     isDragging = false;
     isDragStarted = false;
-    
+
     // Annuler les timeouts
     if (clickTimeout) {
         clearTimeout(clickTimeout);
         clickTimeout = null;
     }
-    
+
     // Annule l'animation frame
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
     }
-    
+
     // Nettoyer l'élément dragué
     if (dragElement) {
         dragElement.classList.remove('dragging', 'drag-ready');
@@ -754,7 +865,7 @@ function cleanupDrag() {
         dragElement.style.opacity = '';
         dragElement.style.transition = '';
     }
-    
+
     // Nettoyer la prévisualisation
     if (dragPreview) {
         dragPreview.style.transition = 'opacity 0.1s ease-out';
@@ -767,34 +878,34 @@ function cleanupDrag() {
             dragPreview = null;
         }, 100);
     }
-    
+
     // Nettoyer tous les éléments drag-preview orphelins
     document.querySelectorAll('.drag-preview').forEach(el => {
         if (el.parentNode) {
             document.body.removeChild(el);
         }
     });
-    
+
     // Nettoyer tous les indicateurs visuels
     document.querySelectorAll('.drag-over').forEach(el => {
         el.classList.remove('drag-over');
     });
-    
+
     document.querySelectorAll('.drop-success').forEach(el => {
         el.classList.remove('drop-success');
     });
-    
+
     document.querySelectorAll('.dragging, .drag-ready').forEach(el => {
         el.classList.remove('dragging', 'drag-ready');
         el.style.transform = '';
         el.style.opacity = '';
         el.style.transition = '';
     });
-    
+
     // Restaurer les styles du body
     document.body.style.cursor = 'default';
     document.body.style.userSelect = 'auto';
-    
+
     // Réinitialiser les variables
     draggedItem = null;
     dragElement = null;
@@ -819,14 +930,14 @@ function refreshCharacterDisplay() {
 }
 
 // Gestionnaire d'événements pour les boutons
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const useBtn = document.getElementById('use-item');
     if (useBtn) {
-        useBtn.addEventListener('click', function() {
+        useBtn.addEventListener('click', function () {
             if (selectedSlot && this.classList.contains('active')) {
                 for (let i = 0; i < playerInventory.length; i++) {
                     if (playerInventory[i].slot == selectedSlot.number) {
-                        fetch(`https://r_inventory/useItem`, {
+                        fetch(`https://${GetParentResourceName()}/useItem`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -839,14 +950,14 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         })
     }
-    
+
     // Bouton Give Item
     const giveBtn = document.getElementById('give-item');
     if (giveBtn) {
-        giveBtn.addEventListener('click', function() {
+        giveBtn.addEventListener('click', function () {
             if (selectedSlot && this.classList.contains('active')) {
                 const itemData = selectedSlot.type === 'player' ? playerInventory[selectedSlot.number] : groundItems[selectedSlot.number];
-                
+
                 fetch(`https://${GetParentResourceName()}/giveItem`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -862,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Fermer l'inventaire avec Échap
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && inventoryOpen) {
         fetch(`https://${GetParentResourceName()}/closeInventory`, {
             method: 'POST',
@@ -871,3 +982,6 @@ document.addEventListener('keydown', function(event) {
         });
     }
 });
+
+// Initialisation du module
+console.log('[Inventory Module] Module inventaire chargé');

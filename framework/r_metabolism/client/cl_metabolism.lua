@@ -15,6 +15,35 @@ function ShouldShowMetabolismHud()
     return true
 end
 
+function ShowMetabolismHud()
+    SendNUIMessage({
+        action = "showModule",
+        module = 'metabolism',
+        data = {
+            hunger = hunger,
+            thirst = thirst
+        }
+    })
+end
+
+function HideMetabolismHud()
+    SendNUIMessage({
+        action = "hideModule",
+        module = 'metabolism'
+    })
+end
+
+function UpdateMetabolismHud(hungerValue, thirstValue)
+    SendNUIMessage({
+        action = "updateUI",
+        module = 'metabolism',
+        data = {
+            hunger = hungerValue,
+            thirst = thirstValue
+        }
+    })
+end
+
 -- Initialise les valeurs de métabolisme
 Citizen.CreateThread(function()
     while not NetworkIsPlayerActive(PlayerId()) do
@@ -33,10 +62,12 @@ Citizen.CreateThread(function()
 
         if shouldShow ~= isHudVisible then
             isHudVisible = shouldShow
-            SendNuiMessage(json.encode({
-                type = 'toggleVisibility',
-                show = isHudVisible
-            }))
+
+            if isHudVisible then
+                ShowMetabolismHud()
+            else
+                HideMetabolismHud()
+            end
         end
 
         Citizen.Wait(100)
@@ -48,45 +79,24 @@ AddEventHandler('r_metabolism:updateValues', function(data)
     hunger = data.hunger
     thirst = data.thirst
 
-    SendNUIMessage({
-        type = 'updateValues',
-        hunger = hunger,
-        thirst = thirst
-    })
+    if isHudVisible then
+        UpdateMetabolismHud(hunger, thirst)
+    end
 end)
 
 RegisterNetEvent('r_metabolism:lowValues')
 AddEventHandler('r_metabolism:lowValues', function()
     if hunger == 0 then
-        exports['r_coma']:StartDeathProcess('hunger', 40)
+        StartDeathProcess('hunger', 40)
         Citizen.SetTimeout(40000, function()
             TriggerServerEvent('r_metabolism:setValues', 50, 50)
         end) -- Wait 40 seconds
     end
 
     if thirst == 0 then
-        exports['r_coma']:StartDeathProcess('thirst', 40)
+        StartDeathProcess('thirst', 40)
         Citizen.SetTimeout(40000, function()
             TriggerServerEvent('r_metabolism:setValues', 50, 50)
         end) -- Wait 40 seconds
-    end
-end)
-
-RegisterNetEvent('r_metabolism:toggleHud')
-AddEventHandler('r_metabolism:toggleHud', function(show)
-    if show == nil then show = not isHudVisible end
-
-    isHudVisible = show
-    SendNuiMessage({
-        type = 'toggleVisibility',
-        show = isHudVisible
-    })
-
-    if isHudVisible then
-        SendNuiMessage({
-            type = 'updateValues',
-            hunger = hunger,
-            thirst = thirst
-        })
     end
 end)

@@ -1,19 +1,21 @@
+InventoryLoaded = false
+
 -- Fonction pour ouvrir l'inventaire
 function OpenInventory()
     if InventoryOpen then return end
-    
+
     InventoryOpen = true
 
     UpdateGroundItemsCoordinates()
-    
+
     SetNuiFocus(true, true)
-    
+
     SetTimecycleModifier("hud_def_blur")
     SetTimecycleModifierStrength(0.5)
-    
+
     local playerPed = PlayerPedId()
     SetEntityAlpha(playerPed, 100, false)
-    
+
     CreatePedScreen()
 
     CreateThread(function()
@@ -24,39 +26,30 @@ function OpenInventory()
         end
     end)
 
-    -- Récupérer les données nécessaires
+    -- Récupérer les données nécessaires AVANT d'ouvrir l'interface
     RefreshInventory()
     TriggerServerEvent('r_inventory:getGroundItems') -- Items proches pour l'inventaire
     TriggerServerEvent('r_inventory:getNearbyPlayers')
-    
-    -- Envoyer message d'ouverture
-    SendNUIMessage({
-        type = 'openInventory',
-        playerInventory = {},
-        groundItems = GroundItemsForInventory, -- Utiliser les items proches
-        playerData = {
-            weight = 0
-        }
-    })
 end
 
 -- Fonction pour fermer l'inventaire
 function CloseInventory()
     if not InventoryOpen then return end
-    
+
     InventoryOpen = false
 
     CleanupPedScreen()
-    
+
     SetNuiFocus(false, false)
-    
+
     ClearTimecycleModifier()
-    
+
     local playerPed = PlayerPedId()
     SetEntityAlpha(playerPed, 255, false)
-    
+
     SendNUIMessage({
-        type = 'closeInventory'
+        action = 'hideModule',
+        module = 'inventory'
     })
 end
 
@@ -65,14 +58,42 @@ function RefreshInventory()
     TriggerServerEvent('r_inventory:getPlayerData')
 end
 
+-- Fonction pour mettre à jour les items au sol
+function UpdateGroundItemsUI(groundItemsData)
+    if InventoryOpen then
+        SendNUIMessage({
+            action = 'updateUI',
+            module = 'inventory',
+            data = {
+                type = 'updateGroundItems',
+                groundItems = groundItemsData
+            }
+        })
+    end
+end
+
+-- Fonction pour mettre à jour les données du joueur
+function UpdatePlayerDataUI(playerData)
+    if InventoryOpen then
+        SendNUIMessage({
+            action = 'updateUI',
+            module = 'inventory',
+            data = {
+                type = 'updatePlayerData',
+                playerData = playerData
+            }
+        })
+    end
+end
+
 function UpdateGroundItemsCoordinates()
     local updatedItems = {}
-    
+
     for itemId, object in pairs(GroundObjects) do
         if DoesEntityExist(object) then
             local currentCoords = GetEntityCoords(object)
             local itemData = nil
-            
+
             -- Trouver l'item correspondant
             for _, item in pairs(GroundItemsData) do
                 if item.id == itemId then
@@ -80,11 +101,11 @@ function UpdateGroundItemsCoordinates()
                     break
                 end
             end
-            
+
             if itemData then
                 local originalCoords = vector3(itemData.x, itemData.y, itemData.z)
                 local distance = #(currentCoords - originalCoords)
-                
+
                 if distance > 0.5 then
                     table.insert(updatedItems, {
                         id = itemId,
@@ -92,7 +113,7 @@ function UpdateGroundItemsCoordinates()
                         y = currentCoords.y,
                         z = currentCoords.z
                     })
-                    
+
                     -- Mettre à jour localement
                     itemData.x = currentCoords.x
                     itemData.y = currentCoords.y
@@ -101,7 +122,7 @@ function UpdateGroundItemsCoordinates()
             end
         end
     end
-    
+
     -- Envoyer toutes les mises à jour en une fois
     if #updatedItems > 0 then
         TriggerServerEvent('r_inventory:updateMultipleGroundItemCoords', updatedItems)
@@ -123,7 +144,7 @@ function SpawnGroundItem(itemData)
         local object = CreateObject(hash, itemData.x, itemData.y, itemData.z, false, true, true)
         SetEntityAsMissionEntity(object, true, true)
         SetEntityVelocity(object, 0.0, 0.0, 0.1)
-        
+
         local randomRotation = math.random(0, 360)
         SetEntityRotation(object, 0.0, 0.0, randomRotation, 2, true)
 
@@ -153,10 +174,10 @@ function CreatePedScreen()
         Citizen.Wait(100)
 
         PlayerPedPreview = ClonePed(PlayerPedId(), false, true, false)
-        
+
         if DoesEntityExist(PlayerPedPreview) then
             local x, y, z = table.unpack(GetEntityCoords(PlayerPedPreview))
-            
+
             SetEntityCoords(PlayerPedPreview, x, y, z - 100, false, false, false, false)
             FreezeEntityPosition(PlayerPedPreview, true)
             SetEntityVisible(PlayerPedPreview, false, false)
@@ -178,7 +199,7 @@ function CleanupPedScreen()
         DeleteEntity(PlayerPedPreview)
         PlayerPedPreview = nil
     end
-    
+
     if FrontendActive then
         SetMouseCursorVisible(true)
         SetFrontendActive(false)
@@ -190,23 +211,23 @@ end
 function UpdateCharacterDisplay()
     if DoesEntityExist(PlayerPedPreview) then
         local heading = GetEntityHeading(PlayerPedPreview)
-        
+
         -- Supprimer l'ancien ped
         DeleteEntity(PlayerPedPreview)
-        
+
         -- Créer le nouveau ped
         PlayerPedPreview = ClonePed(PlayerPedId(), heading, true, false)
-        
+
         if DoesEntityExist(PlayerPedPreview) then
             local x, y, z = table.unpack(GetEntityCoords(PlayerPedPreview))
-            
+
             SetEntityCoords(PlayerPedPreview, x, y, z)
             FreezeEntityPosition(PlayerPedPreview, true)
             SetEntityVisible(PlayerPedPreview, false, false)
             NetworkSetEntityInvisibleToNetwork(PlayerPedPreview, false)
-            
+
             Citizen.Wait(200)
-            
+
             SetPedAsNoLongerNeeded(PlayerPedPreview)
             GivePedToPauseMenu(PlayerPedPreview, 2)
             SetPauseMenuPedLighting(true)

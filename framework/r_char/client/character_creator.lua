@@ -56,8 +56,8 @@ local inCreator = false
 local lastSexValue = nil
 
 -- Variables du zoom de la cam
-local cameraZoomLevel = 0.0 -- 0.0 position initiale, 1.0 zoom max sur le visage
-local baseCameraOffset = vector3(0.0, 4.0, 0.5) -- Position de base de la caméra
+local cameraZoomLevel = 0.0                      -- 0.0 position initiale, 1.0 zoom max sur le visage
+local baseCameraOffset = vector3(0.0, 4.0, 0.5)  -- Position de base de la caméra
 local zoomCameraOffset = vector3(0.0, -4.5, 1.5) -- Position du zoom
 local maxZoomLevel = 0.3
 local minZoomLevel = 0.0
@@ -173,52 +173,55 @@ end
 -- Démarrer le créateur de personnage
 function StartCharacterCreator()
     local playerPed = PlayerPedId()
-    
+
     SetEntityCoords(playerPed, -75.448349, -819.151489, 326.175018, false, false, false, true)
     SetEntityHeading(playerPed, baseHeading)
 
     playerRotation = 0.0
-    
+
     lastSexValue = 0
     creatorCharacter.sex = 0
-    
+
     local defaultModel = "mp_m_freemode_01"
     if not LoadPlayerModel(defaultModel, true) then
         print('ERREUR: Impossible de charger le modèle par défaut')
         return
     end
-    
+
     Citizen.CreateThread(function()
         Citizen.Wait(100)
-        
+
         local newPed = PlayerPedId()
-        
+
         -- Vérifie que le ped existe
         if not DoesEntityExist(newPed) then
             print('ERREUR: Ped non trouvé après chargement du modèle')
             return
         end
-        
+
         -- Applique l'apparence par défaut
         ApplyCreatorCharacterAppearance(newPed, creatorCharacter)
-        
+
         CreateCreatorCamera(newPed)
-        
+
         -- Freeze le joueur
         FreezeEntityPosition(newPed, true)
         SetEntityInvincible(newPed, true)
-        
-        -- Ouvrir l'interface
+
+        -- Ouvrir l'interface avec le nouveau système UI
         SetNuiFocus(true, true)
         SendNUIMessage({
-            type = 'openCreator',
-            character = creatorCharacter
+            action = 'loadUI',
+            module = 'character',
+            data = {
+                type = 'openCreator',
+                character = creatorCharacter
+            }
         })
-        
+
         inCreator = true
     end)
 end
-
 
 -- Fonction dédiée à l'application d'apparence dans le créateur
 function ApplyCreatorCharacterAppearance(playerPed, characterData)
@@ -370,12 +373,12 @@ function ApplyCreatorCharacterAppearance(playerPed, characterData)
     if characterData.hair_color then
         SetPedHairTint(playerPed, characterData.hair_color, characterData.hair_highlight or 0)
     end
-    
+
     -- Yeux
     if characterData.eye_color then
         SetPedEyeColor(playerPed, characterData.eye_color)
     end
-    
+
     -- Vêtements
 
     -- Masque
@@ -449,11 +452,11 @@ end)
 RegisterNUICallback('updateZoom', function(data, cb)
     local zoomLevel = data.zoom or 0.0
     local playerPed = PlayerPedId()
-    
+
     if creatorCamera and DoesEntityExist(playerPed) then
         UpdateCameraZoom(zoomLevel, playerPed)
     end
-    
+
     cb('ok')
 end)
 
@@ -495,47 +498,46 @@ RegisterNUICallback('updateCharacter', function(data, cb)
     for key, value in pairs(data) do
         creatorCharacter[key] = value
     end
-    
+
     local playerPed = PlayerPedId()
     local needsModelChange = false
-    
+
     -- Vérifie si le sexe a changé
     if data.sex ~= nil and data.sex ~= lastSexValue then
         lastSexValue = data.sex
         needsModelChange = true
     end
-    
+
     if needsModelChange then
         local requiredModel = data.sex == 0 and "mp_m_freemode_01" or "mp_f_freemode_01"
-        
+
         if creatorCamera then
             DetachCam(creatorCamera)
             DestroyCam(creatorCamera, false)
             creatorCamera = nil
         end
-        
+
         if LoadPlayerModel(requiredModel, true) then
             Citizen.Wait(300)
             playerPed = PlayerPedId()
-            
+
             CreateCreatorCamera(playerPed)
-            
+
             ApplyCreatorCharacterAppearance(playerPed, creatorCharacter)
         end
     else
         -- Pas de changement de modèle, juste appliquer l'apparence
         ApplyCreatorCharacterAppearance(playerPed, creatorCharacter)
     end
-    
+
     cb('ok')
 end)
 
 -- Callback pour finaliser la création
 RegisterNUICallback('finishCreation', function(data, cb)
-    
     TriggerServerEvent('r_char:saveCharacter', data)
     CloseCharacterCreator()
-    
+
     cb('ok')
 end)
 
@@ -545,16 +547,19 @@ function CloseCharacterCreator()
         DestroyCam(creatorCamera, false)
         creatorCamera = nil
     end
-    
+
     local playerPed = PlayerPedId()
     FreezeEntityPosition(playerPed, false)
     SetEntityInvincible(playerPed, false)
-    
+
     SetNuiFocus(false, false)
-    SendNUIMessage({type = 'closeCreator'})
-    
+    SendNUIMessage({
+        action = 'closeUI',
+        module = 'character'
+    })
+
     inCreator = false
-    
+
     -- Téléporte le joueur à l'aéroport
     SetEntityCoords(playerPed, -1042.31, -2745.9, 21.35, true, true, true, false)
 end

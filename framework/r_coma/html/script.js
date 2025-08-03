@@ -1,34 +1,49 @@
 let currentTimer = 0;
 let maxTimer = 0;
 
-// Écoute des événements depuis FiveM
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
     const data = event.data;
-    
-    switch(data.action) {
-        case 'showDeath':
-            showDeathInterface(data.cat, data.koTime);
-            break;
-        case 'updateTimer':
-            updateTimer(data.timeLeft);
-            break;
-        case 'hideDeath':
-            hideDeathInterface();
-            break;
+
+    if (data.action === 'init' && data.module === 'coma') {
+        if (data.data && data.data.cat && data.data.koTime) {
+            showDeathInterface(data.data.cat, data.data.koTime);
+        }
+        return;
+    }
+
+    if (data.action === 'update' && data.module === 'coma') {
+        if (data.data && data.data.timeLeft !== undefined) {
+            updateTimer(data.data.timeLeft);
+        }
+        return;
     }
 });
 
 function showDeathInterface(deathType, totalTime) {
+
     const container = document.getElementById('deathContainer');
     const icon = document.getElementById('deathIcon');
     const title = document.getElementById('deathTitle');
     const message = document.getElementById('deathMessage');
-    
+
+    if (!container || !icon || !title || !message) {
+        console.error('[Coma Script] Elements DOM non trouvés:', {
+            container: !!container,
+            icon: !!icon,
+            title: !!title,
+            message: !!message
+        });
+
+        setTimeout(() => {
+            showDeathInterface(deathType, totalTime);
+        }, 100);
+        return;
+    }
+
     maxTimer = totalTime;
     currentTimer = totalTime;
-    
-    // Personnalise selon le type de mort
-    switch(deathType) {
+
+    switch (deathType) {
         case 'unarmed':
             icon.textContent = '💫';
             title.textContent = 'Vous êtes KO';
@@ -59,27 +74,52 @@ function showDeathInterface(deathType, totalTime) {
             title.textContent = 'Inconscient';
             message.textContent = 'Vous êtes dans le coma...';
     }
-    
-    // Affiche l'interface
+
     container.classList.remove('hidden');
     updateProgressRing(currentTimer, maxTimer);
 }
 
 function updateTimer(timeLeft) {
     currentTimer = timeLeft;
-    document.getElementById('timeLeft').textContent = timeLeft;
+    const timeLeftElement = document.getElementById('timeLeft');
+    if (timeLeftElement) {
+        timeLeftElement.textContent = timeLeft;
+    }
     updateProgressRing(timeLeft, maxTimer);
 }
 
 function updateProgressRing(current, max) {
     const circle = document.querySelector('.progress-ring-circle');
+    if (!circle) {
+        console.error('[Coma Script] Progress ring circle not found');
+        return;
+    }
+
     const circumference = 2 * Math.PI * 54; // rayon = 54
     const progress = current / max;
     const offset = circumference * (1 - progress);
-    
+
     circle.style.strokeDashoffset = offset;
 }
 
 function hideDeathInterface() {
-    document.getElementById('deathContainer').classList.add('hidden');
+    const container = document.getElementById('deathContainer');
+    if (container) {
+        container.classList.add('hidden');
+    }
 }
+
+setTimeout(() => {
+    const elements = {
+        deathContainer: !!document.getElementById('deathContainer'),
+        deathIcon: !!document.getElementById('deathIcon'),
+        deathTitle: !!document.getElementById('deathTitle'),
+        deathMessage: !!document.getElementById('deathMessage'),
+        timeLeft: !!document.getElementById('timeLeft'),
+        progressRing: !!document.querySelector('.progress-ring-circle')
+    };
+
+    if (!elements.deathContainer) {
+        console.error('[Coma Script] ERREUR: Container principal non trouvé!');
+    }
+}, 500);

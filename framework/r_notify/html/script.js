@@ -2,17 +2,27 @@ let notificationCount = 0;
 let notifications = [];
 const maxNotifications = 10;
 
-window.addEventListener('message', function(event) {
+window.addEventListener('message', function (event) {
     const data = event.data;
 
-    switch(data.action) {
-        case 'showNotification':
+    if (data.action === 'init' && data.module === 'notify') {
+        if (data.data) {
             showNotification(data.data);
-            break;
+        }
+        return;
+    }
+
+    if (data.action === 'show' && data.module === 'notify') {
+        if (data.data) {
+            showNotification(data.data);
+        }
+        return;
     }
 });
 
 function showNotification(data) {
+    notifications = [];
+
     if (notifications.length >= maxNotifications) {
         removeOldestNotification();
     }
@@ -28,7 +38,7 @@ function showNotification(data) {
     }, 100);
 
     const progressBar = notification.querySelector('.notification-bar');
-    if(progressBar) {
+    if (progressBar) {
         progressBar.style.width = '100%';
         setTimeout(() => {
             progressBar.style.width = '0%';

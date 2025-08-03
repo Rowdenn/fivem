@@ -1,4 +1,3 @@
-local lastQuickSlotUsed = 0
 local isQuickSlotOnCd = false
 
 -- Détecte les joueurs proches
@@ -8,13 +7,13 @@ Citizen.CreateThread(function()
             local playerPed = PlayerPedId()
             local playerCoords = GetEntityCoords(playerPed)
             local players = {}
-            
+
             for _, player in pairs(GetActivePlayers()) do
                 if player ~= PlayerId() then
                     local targetPed = GetPlayerPed(player)
                     local targetCoords = GetEntityCoords(targetPed)
                     local distance = #(playerCoords - targetCoords)
-                    
+
                     if distance <= 3.0 then
                         table.insert(players, {
                             id = GetPlayerServerId(player),
@@ -24,15 +23,15 @@ Citizen.CreateThread(function()
                     end
                 end
             end
-            
+
             NearbyPlayers = players
-            
+
             SendNUIMessage({
                 type = 'updateNearbyPlayers',
                 players = NearbyPlayers
             })
         end
-        
+
         Citizen.Wait(InventoryOpen and 1000 or 5000)
     end
 end)
@@ -41,48 +40,33 @@ end)
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
-        
-        local shouldWait = true
-        
-        -- Touche TAB pour ouvrir/fermer l'inventaire
-        if IsControlPressed(0, Config.Keys.OpenInventory) then -- TAB
-            if InventoryOpen then
-                CloseInventory()
-            else
-                OpenInventory()
+
+        if IsControlJustPressed(0, 37) then -- TAB
+            if not IsPauseMenuActive() and not IsPlayerSwitchInProgress() then
+                if InventoryOpen then
+                    CloseInventory()
+                else
+                    OpenInventory()
+                end
+                Citizen.Wait(200)
             end
-            shouldWait = false
         end
-        
-        -- Échap pour fermer l'inventaire
-        if IsControlPressed(0, 177) and InventoryOpen then -- ESC
+
+        if IsControlJustPressed(0, 177) and InventoryOpen then -- ESC
             CloseInventory()
-            shouldWait = false
         end
-        
-        -- Touches de raccourci (1-5) pour les quick slots
-        local currentTime = GetGameTimer()
 
         if not InventoryOpen and not isQuickSlotOnCd then
-            for i, key in pairs(Config.Keys.QuickUse) do
-                if IsControlPressed(0, key) then
+            for i, key in pairs(GlobalConfig.Inventory.Keys.QuickUse) do
+                if IsControlJustPressed(0, key) then
                     TriggerServerEvent('r_inventory:useQuickSlot', i)
-
                     isQuickSlotOnCd = true
-                    lastQuickSlotUsed = currentTime
-
                     SetTimeout(500, function()
                         isQuickSlotOnCd = false
                     end)
-
-                    shouldWait = false
                     break
                 end
             end
-        end
-
-        if shouldWait then
-            Citizen.Wait(50)
         end
     end
 end)
@@ -116,7 +100,7 @@ Citizen.CreateThread(function()
 
                         if onScreen then
                             local textScale = math.max(0.25, 0.5 - (distance * 0.03))
-                            
+
                             SetTextScale(textScale, textScale)
                             SetTextFont(4)
                             SetTextCentre(true)
@@ -145,7 +129,7 @@ Citizen.CreateThread(function()
             if DoesEntityExist(object) then
                 local currentCoords = GetEntityCoords(object)
                 local itemData = nil
-                
+
                 -- Trouver l'item correspondant dans GroundItemsData
                 for _, item in pairs(GroundItemsData) do
                     if item.id == itemId then
@@ -153,25 +137,25 @@ Citizen.CreateThread(function()
                         break
                     end
                 end
-                
+
                 if itemData then
                     local originalCoords = vector3(itemData.x, itemData.y, itemData.z)
                     local distance = #(currentCoords - originalCoords)
-                    
+
                     -- Si l'objet s'est déplacé de plus de 1 mètre
                     if distance > 2.0 then
                         -- Mettre à jour les coordonnées localement
                         itemData.x = currentCoords.x
                         itemData.y = currentCoords.y
                         itemData.z = currentCoords.z
-                        
+
                         -- Envoyer la mise à jour au serveur
                         TriggerServerEvent('r_inventory:updateGroundItemCoords', itemId, currentCoords)
                     end
                 end
             end
         end
-        
+
         Citizen.Wait(5000) -- Vérifier toutes les 5 secondes
     end
 end)
@@ -191,14 +175,14 @@ Citizen.CreateThread(function()
 
         local distance = #(currentCoords - lastCoords)
         local timeSinceUpdate = currentTime - lastUpdate
-        
+
         -- Mise à jour des items visibles (3D)
         if distance > 25.0 or timeSinceUpdate > 15000 then
             TriggerServerEvent('r_inventory:getAllGroundItems')
             lastCoords = currentCoords
             lastUpdate = currentTime
         end
-        
+
         Citizen.Wait(2000)
     end
 end)
