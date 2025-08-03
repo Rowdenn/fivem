@@ -13,18 +13,18 @@ body {
     position: fixed;
     left: 300px;
     bottom: 11px;
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
     z-index: 100;
+}
+
+/* Solution de remplacement pour le gap qui ne fonctionnait pas entre les barres */
+.stat-bar:not(:last-child) {
+    margin-bottom: 11px;
 }
 
 .stat-bar {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    transform: rotate(180deg);
 }
 
 .stat-progress {
@@ -46,7 +46,6 @@ body {
     left: 1px;
     width: calc(100% - 2px);
     height: 0%;
-    border-radius: 3px;
     transition: height 0.5s ease;
     background: linear-gradient(0deg, #4caf50, #8BC34A);
 }

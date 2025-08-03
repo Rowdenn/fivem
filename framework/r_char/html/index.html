@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créateur de Personnage</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div id="character-creator" class="hidden">
         <div class="creator-panel">
             <h2>Créateur de Personnage</h2>
-            
+
             <!-- Navigation par onglets -->
             <div class="tabs">
-                <button class="tab-button active" onclick="showTab('identity')">Identité</button>
-                <button class="tab-button" onclick="showTab('body')">Corps</button>
-                <button class="tab-button" onclick="showTab('clothing')">Vêtements</button>
+                <button class="tab-button active" data-tab="identity">Identité</button>
+                <button class="tab-button" data-tab="body">Corps</button>
+                <button class="tab-button" data-tab="clothing">Vêtements</button>
             </div>
-            
+
             <!-- Onglet Identité -->
             <div id="identity" class="tab-content active">
                 <div class="section">
@@ -47,11 +49,11 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Onglet Corps -->
             <div id="body" class="tab-content">
                 <!-- Traits du visage -->
-                 <div class="section">
+                <div class="section">
                     <h3>Forme du visage</h3>
                     <div class="slider-group">
                         <label>Visage: <span id="face_shape_value">0</span></label>
@@ -150,7 +152,7 @@
                         <input type="range" id="face_feature_19" min="-1" max="1" step="0.1" value="0">
                     </div>
                 </div>
-                
+
                 <!-- Cheveux -->
                 <div class="section">
                     <h3>Cheveux</h3>
@@ -167,7 +169,7 @@
                         <input type="range" id="hair_highlight" min="0" max="63" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <!-- Yeux -->
                 <div class="section">
                     <h3>Yeux</h3>
@@ -176,7 +178,7 @@
                         <input type="range" id="eye_color" min="0" max="31" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <!-- Overlays -->
                 <div class="section">
                     <h3>Imperfections</h3>
@@ -185,7 +187,7 @@
                         <input type="range" id="blemishes" min="0" max="23" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Barbe</h3>
                     <div class="slider-group">
@@ -197,7 +199,7 @@
                         <input type="range" id="beard_color" min="0" max="63" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Sourcils</h3>
                     <div class="slider-group">
@@ -209,7 +211,7 @@
                         <input type="range" id="eyebrows_color" min="0" max="63" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Vieillissement</h3>
                     <div class="slider-group">
@@ -217,7 +219,7 @@
                         <input type="range" id="ageing" min="0" max="14" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Maquillage</h3>
                     <div class="slider-group">
@@ -229,7 +231,7 @@
                         <input type="range" id="makeup_color" min="0" max="74" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Blush</h3>
                     <div class="slider-group">
@@ -237,7 +239,7 @@
                         <input type="range" id="blush" min="0" max="6" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Teint</h3>
                     <div class="slider-group">
@@ -245,7 +247,7 @@
                         <input type="range" id="complexion" min="0" max="11" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Dommages du soleil</h3>
                     <div class="slider-group">
@@ -253,7 +255,7 @@
                         <input type="range" id="sun_damage" min="0" max="10" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Rouge à lèvres</h3>
                     <div class="slider-group">
@@ -261,7 +263,7 @@
                         <input type="range" id="lipstick" min="0" max="9" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Grains de beauté</h3>
                     <div class="slider-group">
@@ -269,7 +271,7 @@
                         <input type="range" id="moles" min="0" max="17" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Poils du torse</h3>
                     <div class="slider-group">
@@ -281,7 +283,7 @@
                         <input type="range" id="chest_hair_color" min="0" max="63" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Imperfections corporelles</h3>
                     <div class="slider-group">
@@ -289,7 +291,7 @@
                         <input type="range" id="body_blemishes" min="0" max="11" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Imperfections additionnelles</h3>
                     <div class="slider-group">
@@ -298,7 +300,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Onglet Vêtements -->
             <div id="clothing" class="tab-content">
                 <div class="section">
@@ -312,7 +314,7 @@
                         <input type="range" id="mask_texture" min="0" max="20" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Texture peau</h3>
                     <div class="slider-group">
@@ -320,7 +322,7 @@
                         <input type="range" id="torso" min="0" max="50" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Torse 2</h3>
                     <div class="slider-group">
@@ -356,7 +358,7 @@
                         <input type="range" id="legs_texture" min="0" max="20" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Sac à dos</h3>
                     <div class="slider-group">
@@ -368,7 +370,7 @@
                         <input type="range" id="bag_texture" min="0" max="20" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Accessoires</h3>
                     <div class="slider-group">
@@ -380,7 +382,7 @@
                         <input type="range" id="accessory_texture" min="0" max="20" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Sous-vêtements</h3>
                     <div class="slider-group">
@@ -392,7 +394,7 @@
                         <input type="range" id="undershirt_texture" min="0" max="20" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Gilet pare-balles</h3>
                     <div class="slider-group">
@@ -404,7 +406,7 @@
                         <input type="range" id="kevlar_texture" min="0" max="20" step="1" value="0">
                     </div>
                 </div>
-                
+
                 <div class="section">
                     <h3>Badge</h3>
                     <div class="slider-group">
@@ -417,7 +419,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Boutons -->
             <div class="buttons">
                 <button id="save-btn">Sauvegarder</button>
@@ -425,7 +427,8 @@
             </div>
         </div>
     </div>
-    
-    <script src="js/script.js"></script>
+
+    <script src="script.js"></script>
 </body>
+
 </html>

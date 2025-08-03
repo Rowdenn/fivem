@@ -7,6 +7,7 @@
 body {
     font-family: 'Arial', sans-serif;
     overflow: hidden;
+    background: transparent;
 }
 
 .hidden {
@@ -24,6 +25,7 @@ body {
     justify-content: center;
     align-items: center;
     animation: fadeIn 1s ease-in;
+    pointer-events: none;
 }
 
 .death-content {
@@ -42,7 +44,7 @@ body {
 #deathTitle {
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 #deathMessage {
@@ -56,6 +58,18 @@ body {
     position: relative;
     display: inline-block;
     margin: 2rem 0;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    stroke: #ff6b6b;
+    stroke-width: 4;
+    fill: transparent;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease-in-out;
 }
 
 .timer-text {
@@ -79,18 +93,15 @@ small {
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.2); opacity: 0.7; }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Styles selon le type de mort */
@@ -98,10 +109,22 @@ small {
     --primary-color: #ffa500;
 }
 
+.knockout .progress-ring-circle {
+    stroke: var(--primary-color);
+}
+
 .knife {
     --primary-color: #ff6b6b;
 }
 
+.knife .progress-ring-circle {
+    stroke: var(--primary-color);
+}
+
 .gun {
     --primary-color: #ff0000;
+}
+
+.gun .progress-ring-circle {
+    stroke: var(--primary-color);
 }
