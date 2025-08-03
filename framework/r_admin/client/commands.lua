@@ -105,16 +105,19 @@ RegisterProtectedCommand('getcoords', function(source, args, rawCommand)
     local coords = GetEntityCoords(playerPed)
     local heading = GetEntityHeading(playerPed)
 
-    local x = coords.x
-    local y = coords.y
-    local z = coords.z
-    local h = heading
+    local x = string.format("%.3f", coords.x)
+    local y = string.format("%.3f", coords.y)
+    local z = string.format("%.3f", coords.z)
+    local h = string.format("%.3f", heading)
 
-    local coordsText = x .. ', ' .. y .. ', ' .. z .. ', ' .. h
+    local coordsText = 'vec3(' .. x .. ', ' .. y .. ', ' .. z .. ')'
 
     SendNUIMessage({
-        type = 'clipboard',
-        text = coordsText
+        action = 'loadUI',
+        module = 'admin',
+        data = {
+            text = coordsText
+        }
     })
 
     TriggerServerEvent('r_admin:client:showNotification',
