@@ -1,0 +1,78 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: transparent;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+.ui-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.ui-container.active {
+    pointer-events: auto;
+}
+
+/* CSS pour les conteneurs de modules - chaque module est indépendant */
+.ui-module {
+    position: fixed;
+    /* Changé de absolute à fixed pour être indépendant du conteneur */
+    pointer-events: auto;
+    z-index: 1001;
+    /* Z-index de base pour tous les modules */
+}
+
+/* Classes pour gérer les niveaux de priorité des modules */
+.ui-module.priority-low {
+    z-index: 1001;
+}
+
+.ui-module.priority-normal {
+    z-index: 1010;
+}
+
+.ui-module.priority-high {
+    z-index: 1020;
+}
+
+.ui-module.priority-critical {
+    z-index: 1030;
+}
+
+/* Animation pour l'apparition des modules */
+.ui-module {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.ui-module.loaded {
+    opacity: 1;
+}
+
+.ui-module.persistent.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.ui-module.persistent.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.hidden {
+    display: none !important;
+}
