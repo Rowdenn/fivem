@@ -1,3 +1,5 @@
+const debugMode = false
+
 class SimpleUILoader {
     constructor() {
         this.activeModules = new Map();
@@ -12,7 +14,9 @@ class SimpleUILoader {
     init() {
         window.addEventListener('message', (event) => {
             const data = event.data;
-            console.log('[UI Loader] Message reçu:', JSON.stringify(data));
+            if (debugMode) {
+                console.log('[UI Loader] Message reçu:', JSON.stringify(data));
+            }
 
             switch (data.action) {
                 case 'loadUI':
@@ -44,7 +48,9 @@ class SimpleUILoader {
     }
 
     async loadUI(module, data = {}) {
-        console.log(`[UI Loader] Chargement de l'UI: ${module}`);
+        if (debugMode) {
+            console.log(`[UI Loader] Chargement de l'UI: ${module}`);
+        }
 
         // Vérifier si c'est un module persistant déjà chargé
         if (this.isPersistentModule(module) && this.persistentModules.has(module)) {
@@ -138,7 +144,9 @@ class SimpleUILoader {
                 }, '*');
             }, 100);
 
-            console.log(`Module ${module} chargé avec succès avec z-index: ${moduleZIndex}`);
+            if (debugMode) {
+                console.log(`Module ${module} chargé avec succès avec z-index: ${moduleZIndex}`);
+            }
         } catch (error) {
             console.error(`[UI Loader] Erreur lors du chargement de ${module}:`, error);
         }
@@ -211,7 +219,9 @@ class SimpleUILoader {
                 return;
             }
 
-            console.log(`[UI Loader] Fermeture de l'UI: ${module}`);
+            if (debugMode) {
+                console.log(`[UI Loader] Fermeture de l'UI: ${module}`);
+            }
 
             const moduleData = this.activeModules.get(module);
 
@@ -292,7 +302,9 @@ class SimpleUILoader {
             data: moduleData.data
         }, '*');
 
-        console.log(`Module persistant ${module} affiché`);
+        if (debugMode) {
+            console.log(`Module persistant ${module} affiché`);
+        }
     }
 
     hideModule(module) {
@@ -321,7 +333,9 @@ class SimpleUILoader {
             module: module
         }, '*');
 
-        console.log(`Module persistant ${module} caché`);
+        if (debugMode) {
+            console.log(`Module persistant ${module} caché`);
+        }
     }
 
     toggleModule(module, data = null) {
@@ -347,12 +361,16 @@ class SimpleUILoader {
     async loadPersistentModules() {
         const persistentModules = this.getPersistentModules();
 
-        console.log(`[UI Loader] Chargement des modules persistants:`, persistentModules);
+        if (debugMode) {
+            console.log(`[UI Loader] Chargement des modules persistants:`, persistentModules);
+        }
 
         for (const module of persistentModules) {
             try {
                 await this.loadUI(module, {});
-                console.log(`Module persistant ${module} chargé`);
+                if (debugMode) {
+                    console.log(`Module persistant ${module} chargé`);
+                }
             } catch (error) {
                 console.error(`Erreur lors du chargement du module persistant ${module}:`, error);
             }
@@ -377,7 +395,9 @@ class SimpleUILoader {
             this.activeModules.set(module, moduleData);
         }
 
-        console.log(`Module ${module} mis au premier plan avec z-index: ${newZIndex}`);
+        if (debugMode) {
+            console.log(`Module ${module} mis au premier plan avec z-index: ${newZIndex}`);
+        }
     }
 
     setModulePriority(module, priority) {
@@ -408,7 +428,9 @@ class SimpleUILoader {
             this.activeModules.set(module, moduleData);
         }
 
-        console.log(`Priorité du module ${module} changée pour: ${priority}`);
+        if (debugMode) {
+            console.log(`Priorité du module ${module} changée pour: ${priority}`);
+        }
     }
 
     removeModuleAssets(module) {
