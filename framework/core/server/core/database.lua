@@ -1,4 +1,4 @@
-Framework.Database = {
+local Database = {
     ready = false,
     queries = {},
     cache = {},
@@ -11,13 +11,12 @@ Framework.Database = {
 }
 
 -- Attendre que la base soit prête
-function Framework.Database:WaitForReady(timeout)
+function WaitForReady(timeout)
     timeout = timeout or 30000 -- 30 secondes par défaut
     local startTime = GetGameTimer()
 
-    while not self.ready do
+    while not Database.ready do
         if GetGameTimer() - startTime > timeout then
-            Framework.Debug:Error('Database ready timeout after ' .. timeout .. 'ms')
             return false
         end
         Wait(100)
@@ -27,14 +26,11 @@ function Framework.Database:WaitForReady(timeout)
 end
 
 -- Initialisation de la base de données
-function Framework.Database:Init()
+function Init()
     -- Vérifier si oxmysql est disponible
     if not exports.oxmysql then
-        Framework.Debug:Error('oxmysql not found! Please install oxmysql resource.')
         return false
     end
-
-    Framework.Debug:Info('Initializing database connection...')
 
     -- Attendre que oxmysql soit prêt
     CreateThread(function()
@@ -47,18 +43,13 @@ function Framework.Database:Init()
             end)
 
             if success and response and response[1] and response[1].test == 1 then
-                self.ready = true
-                Framework.Debug:Success('Database connection established successfully')
-                self:CreateTables()
+                Database.ready = true
                 break
             else
                 attempts = attempts + 1
-                Framework.Debug:Warn(('Database connection attempt %d/%d failed: %s'):format(attempts, maxAttempts,
-                    tostring(response)))
 
                 if attempts >= maxAttempts then
-                    Framework.Debug:Error('Database connection failed after ' .. maxAttempts .. ' attempts')
-                    return false
+                    return
                 end
 
                 Wait(2000) -- Attendre 2 secondes entre chaque tentative
@@ -68,16 +59,15 @@ function Framework.Database:Init()
 end
 
 -- Exécuter une requête SQL
-function Framework.Database:Execute(query, params, callback)
+function Execute(query, params, callback)
     local startTime = GetGameTimer()
-    self.stats.totalExecutions = self.stats.totalExecutions + 1
+    Database.stats.totalExecutions = Database.stats.totalExecutions + 1
 
     if callback then
         exports.oxmysql:execute(query, params, function(result)
             local queryTime = GetGameTimer() - startTime
             if queryTime > 100 then
-                self.stats.slowQueries = self.stats.slowQueries + 1
-                Framework.Debug:Warn(('Slow query detected: %dms - %s'):format(queryTime, query))
+                Database.stats.slowQueries = Database.stats.slowQueries + 1
             end
             callback(result)
         end)
@@ -88,13 +78,11 @@ function Framework.Database:Execute(query, params, callback)
 
         local queryTime = GetGameTimer() - startTime
         if queryTime > 100 then
-            self.stats.slowQueries = self.stats.slowQueries + 1
-            Framework.Debug:Warn(('Slow query detected: %dms - %s'):format(queryTime, query))
+            Database.stats.slowQueries = Database.stats.slowQueries + 1
         end
 
         if not success then
-            self.stats.errors = self.stats.errors + 1
-            Framework.Debug:Error('Database error: ' .. tostring(result))
+            Database.stats.errors = Database.stats.errors + 1
             return false
         end
 
@@ -103,16 +91,15 @@ function Framework.Database:Execute(query, params, callback)
 end
 
 -- Fait une requête SELECT
-function Framework.Database:Query(query, params, callback)
+function Query(query, params, callback)
     local startTime = GetGameTimer()
-    self.stats.totalQueries = self.stats.totalQueries + 1
+    Database.stats.totalQueries = Database.stats.totalQueries + 1
 
     if callback then
         exports.oxmysql:execute(query, params, function(result)
             local queryTime = GetGameTimer() - startTime
             if queryTime > 100 then
-                self.stats.slowQueries = self.stats.slowQueries + 1
-                Framework.Debug:Warn(('Slow query detected: %dms - %s'):format(queryTime, query))
+                Database.stats.slowQueries = Database.stats.slowQueries + 1
             end
             callback(result)
         end)
@@ -123,13 +110,11 @@ function Framework.Database:Query(query, params, callback)
 
         local queryTime = GetGameTimer() - startTime
         if queryTime > 100 then
-            self.stats.slowQueries = self.stats.slowQueries + 1
-            Framework.Debug:Warn(('Slow query detected: %dms - %s'):format(queryTime, query))
+            Database.stats.slowQueries = Database.stats.slowQueries + 1
         end
 
         if not success then
-            self.stats.errors = self.stats.errors + 1
-            Framework.Debug:Error('Database error: ' .. tostring(result))
+            Database.stats.errors = Database.stats.errors + 1
             return nil
         end
 
@@ -138,21 +123,21 @@ function Framework.Database:Query(query, params, callback)
 end
 
 -- Récupère une seule ligne
-function Framework.Database:QuerySingle(query, params, callback)
+function QuerySingle(query, params, callback)
     if callback then
-        self:Query(query, params, function(result)
+        Query(query, params, function(result)
             callback(result and result[1] or nil)
         end)
     else
-        local result = self:Query(query, params)
+        local result = Query(query, params)
         return result and result[1] or nil
     end
 end
 
 -- Récupère une seule valeur
-function Framework.Database:QueryScalar(query, params, callback)
+function QueryScalar(query, params, callback)
     if callback then
-        self:QuerySingle(query, params, function(result)
+        QuerySingle(query, params, function(result)
             if result then
                 local value = next(result)
                 callback(result[value])
@@ -161,7 +146,7 @@ function Framework.Database:QueryScalar(query, params, callback)
             end
         end)
     else
-        local result = self:QuerySingle(query, params)
+        local result = QuerySingle(query, params)
         if result then
             local value = next(result)
             return result[value]
@@ -171,7 +156,7 @@ function Framework.Database:QueryScalar(query, params, callback)
 end
 
 -- Insère et récupère l'ID
-function Framework.Database:Insert(query, params, callback)
+function Insert(query, params, callback)
     if callback then
         exports.oxmysql:insert(query, params, function(insertId)
             callback(insertId)
@@ -182,8 +167,7 @@ function Framework.Database:Insert(query, params, callback)
         end)
 
         if not success then
-            self.stats.errors = self.stats.errors + 1
-            Framework.Debug:Error('Database error: ' .. tostring(insertId))
+            Database.stats.errors = Database.stats.errors + 1
             return false
         end
 
@@ -192,16 +176,15 @@ function Framework.Database:Insert(query, params, callback)
 end
 
 -- Effectue plusieurs requêtes
-function Framework.Database:Transaction(queries, callback)
+function Transaction(queries, callback)
     local startTime = GetGameTimer()
-    self.stats.totalQueries = self.stats.totalQueries + 1
+    Database.stats.totalQueries = Database.stats.totalQueries + 1
 
     if callback then
         exports.oxmysql:transaction(queries, function(success)
             local queryTime = GetGameTimer() - startTime
             if queryTime > 100 then
-                self.stats.slowQueries = self.stats.slowQueries + 1
-                Framework.Debug:Warn(('Slow transaction detected: %dms'):format(queryTime))
+                Database.stats.slowQueries = Database.stats.slowQueries + 1
             end
             callback(success)
         end)
@@ -212,13 +195,11 @@ function Framework.Database:Transaction(queries, callback)
 
         local queryTime = GetGameTimer() - startTime
         if queryTime > 100 then
-            self.stats.slowQueries = self.stats.slowQueries + 1
-            Framework.Debug:Warn(('Slow transaction detected: %dms'):format(queryTime))
+            Database.stats.slowQueries = Database.stats.slowQueries + 1
         end
 
         if not success then
-            self.stats.errors = self.stats.errors + 1
-            Framework.Debug:Error('Database transaction error: ' .. tostring(result))
+            Database.stats.errors = Database.stats.errors + 1
             return false
         end
 
@@ -227,15 +208,14 @@ function Framework.Database:Transaction(queries, callback)
 end
 
 -- Prépare une requête (pour les requêtes répétées)
-function Framework.Database:Prepare(name, query)
+function Prepare(name, query)
     exports.oxmysql:prepare(name, query)
-    self.queries[name] = query
+    Database.queries[name] = query
 end
 
 -- Exécute une requête préparée
-function Framework.Database:ExecutePrepared(name, params, callback)
-    if not self.queries[name] then
-        Framework.Debug:Error('Prepared query not found: ' .. name)
+function ExecutePrepared(name, params, callback)
+    if not Database.queries[name] then
         return false
     end
 
@@ -247,8 +227,7 @@ function Framework.Database:ExecutePrepared(name, params, callback)
         end)
 
         if not success then
-            self.stats.errors = self.stats.errors + 1
-            Framework.Debug:Error('Database error: ' .. tostring(result))
+            Database.stats.errors = Database.stats.errors + 1
             return false
         end
 
@@ -257,13 +236,13 @@ function Framework.Database:ExecutePrepared(name, params, callback)
 end
 
 -- Obtiens les statistiques
-function Framework.Database:GetStats()
-    return self.stats
+function GetStats()
+    return Database.stats
 end
 
 -- Vérifie si la base est prête
-function Framework.Database:IsReady()
-    return self.ready
+function IsReady()
+    return Database.ready
 end
 
-print('^2[Rowden Framework]^0 Database module loaded with oxmysql support')
+return Database

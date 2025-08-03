@@ -1,10 +1,8 @@
-Framework.Player = {}
-
-function Framework.Player:GetPermissionsLevel(source)
+function GetPermissionsLevel(source)
     local identifier = GetPlayerIdentifier(source, 0)
     if not identifier then return 0 end
 
-    local result = Framework.Database:Query("SELECT permission_level FROM users WHERE identifier = ?", {
+    local result = Query("SELECT permission_level FROM users WHERE identifier = ?", {
         identifier
     })
 
@@ -15,11 +13,11 @@ function Framework.Player:GetPermissionsLevel(source)
     return 0
 end
 
-function Framework.Player:GetFullname(source, cb)
+function GetFullname(source, cb)
     local identifier = GetPlayerIdentifier(source, 0)
     if not identifier then return 0 end
 
-    Framework.Database:QuerySingle("SELECT firstname, lastname FROM users WHERE identifer = ?", { identifier },
+    QuerySingle("SELECT firstname, lastname FROM users WHERE identifier = ?", { identifier },
         function(result)
             if result then
                 cb({
