@@ -129,6 +129,54 @@ body {
     transition: transform 0.3s ease-in-out;
 }
 
+/* Container pour les notifications proximity en haut à gauche */
+#proximity-notification-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+/* Style pour les notifications proximity */
+.notification.proximity {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 12px 16px;
+    min-width: 200px;
+    max-width: 300px;
+    color: white;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification.proximity.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification.proximity.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in-out;
+}
+
+.notification.proximity::before {
+    display: none;
+}
+
+.notification.proximity .notification-progress {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     #notification-container {
@@ -137,6 +185,17 @@ body {
     }
 
     .notification {
+        min-width: auto;
+        max-width: none;
+    }
+    
+    #proximity-notification-container {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .notification.proximity {
         min-width: auto;
         max-width: none;
     }
