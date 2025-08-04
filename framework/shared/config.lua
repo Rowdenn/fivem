@@ -50,3 +50,22 @@ GlobalConfig.Inventory.UsableItems = {
     'phone',
     'bandage'
 }
+
+--------------------------------
+-- BANK
+--------------------------------
+
+GlobalConfig.Bank = {}
+
+GlobalConfig.Bank.ATMs = {
+    { coords = vector3(236.515, 219.642, 106.286) },
+}
+
+GlobalConfig.Bank.Banks = {
+    {
+        name = 'Banque de Vinewood',
+        coords = vector3(253.987, 222.464, 106.286),
+        heading = 160.979,
+        ped = "a_m_y_business_01"
+    },
+}
