@@ -19,5 +19,10 @@ AddEventHandler('r_notify:server:showNotificationToAll', function(data)
     ShowNotificationToAll(data)
 end)
 
-exports('ShowNotificationToPlayer', ShowNotificationToPlayer)
-exports('ShowNotificationToAll', ShowNotificationToAll)
+function ShowProximityNotificationToPlayer(playerId, message)
+    TriggerClientEvent('r_notify:showProximity', playerId, message)
+end
+
+function HideProximityNotificationToPlayer(playerId)
+    TriggerClientEvent('r_notify:hideProximity', playerId)
+end

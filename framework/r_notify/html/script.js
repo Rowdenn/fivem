@@ -1,34 +1,45 @@
 let notificationCount = 0;
 let notifications = [];
 const maxNotifications = 10;
+let proximityNotification = null;
 
 window.addEventListener('message', function (event) {
     const data = event.data;
 
-    if (data.action === 'init' && data.module === 'notify') {
-        if (data.data) {
-            showNotification(data.data);
+    if (data.module === 'notify' && data.data && data.data.message) {
+        if (data.action === 'init' || data.action === 'show') {
+            if (data.data.proximity !== true) {
+                showNotification(data.data);
+            }
+            return;
         }
+    }
+
+    if (data.action === 'showProximityNotification') {
+        showProximityNotification(data.data);
         return;
     }
 
-    if (data.action === 'show' && data.module === 'notify') {
-        if (data.data) {
-            showNotification(data.data);
-        }
+    if (data.action === 'hideProximityNotification') {
+        hideProximityNotification();
         return;
     }
 });
 
 function showNotification(data) {
-    notifications = [];
+    console.log('Showing NORMAL notification:', data);
 
     if (notifications.length >= maxNotifications) {
         removeOldestNotification();
     }
 
     const notification = createNotificationElement(data);
-    const container = document.getElementById('notification-container');
+    const container = document.getElementById('notification-container'); // CONTAINER DU BAS
+
+    if (!container) {
+        console.error('Container notification-container not found!');
+        return;
+    }
 
     container.appendChild(notification);
     notifications.push(notification);
@@ -37,12 +48,12 @@ function showNotification(data) {
         notification.classList.add('show');
     }, 100);
 
-    const progressBar = notification.querySelector('.notification-bar');
+    const progressBar = notification.querySelector('.notification-progress');
     if (progressBar) {
         progressBar.style.width = '100%';
         setTimeout(() => {
             progressBar.style.width = '0%';
-            progressBar.transitionDuration = `${data.duration}ms`
+            progressBar.style.transitionDuration = `${data.duration}ms`;
         }, 100);
     }
 
@@ -63,13 +74,13 @@ function createNotificationElement(data) {
 
     notification.innerHTML = `
         ${imageHtml}
-        <div class ="notification-content">
+        <div class="notification-content">
             <p class="notification-message">${data.message}</p>
         </div>
         <div class="notification-progress"></div>
     `;
 
-    return notification
+    return notification;
 }
 
 function removeNotification(notification) {
@@ -96,8 +107,53 @@ function removeOldestNotification() {
 }
 
 function clearAllNotifications() {
-    notification.forEach(notification => {
+    notifications.forEach(notification => {
         removeNotification(notification);
-    })
-    notification = [];
+    });
+    notifications = [];
+}
+
+function showProximityNotification(data) {
+    console.log('Showing PROXIMITY notification:', data);
+
+    hideProximityNotification();
+
+    const notification = document.createElement('div');
+    notification.className = 'notification proximity';
+    notification.id = `proximity-notification-${++notificationCount}`;
+
+    notification.innerHTML = `
+        <div class="notification-content">
+            <p class="notification-message">${data.message}</p>
+        </div>
+    `;
+
+    const container = document.getElementById('proximity-notification-container');
+
+    if (!container) {
+        console.error('Container proximity-notification-container not found!');
+        return;
+    }
+
+    container.appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    proximityNotification = notification;
+}
+
+function hideProximityNotification() {
+    if (proximityNotification && proximityNotification.parentNode) {
+        proximityNotification.classList.remove('show');
+        proximityNotification.classList.add('hide');
+
+        setTimeout(() => {
+            if (proximityNotification && proximityNotification.parentNode) {
+                proximityNotification.parentNode.removeChild(proximityNotification);
+            }
+            proximityNotification = null;
+        }, 300);
+    }
 }
