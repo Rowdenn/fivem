@@ -27,8 +27,6 @@ window.addEventListener('message', function (event) {
 });
 
 function showNotification(data) {
-    console.log('Showing NORMAL notification:', data);
-
     if (notifications.length >= maxNotifications) {
         removeOldestNotification();
     }
@@ -114,8 +112,6 @@ function clearAllNotifications() {
 }
 
 function showProximityNotification(data) {
-    console.log('Showing PROXIMITY notification:', data);
-
     hideProximityNotification();
 
     const notification = document.createElement('div');
