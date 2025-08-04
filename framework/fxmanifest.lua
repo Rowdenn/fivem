@@ -34,9 +34,7 @@ server_scripts {
 
 client_scripts {
     '@menuv/menuv.lua',
-    'core/client/core/*.lua',
-    'core/client/modules/*.lua',
-    'core/client/main.lua',
+    'core/client/*.lua',
     'r_notify/client/*.lua',
     'r_char/client/*.lua',
     'r_metabolism/client/*.lua',
