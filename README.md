@@ -16,10 +16,10 @@ Ce projet est une base de serveur FiveM Roleplay développée entièrement par m
 - HTML/CSS/JavaScript - Interface utilisateur (NUI)
 - SQL - Base de données
     
-💬 Contact
+💬 Contact Discord
 
-    Discord : rowdenn
+    rowdenn
 
 Si quelqu'un passe par là, je ne cherche pas de contributions directes. Cependant, les suggestions, conseils et retours constructifs sont les bienvenus !
 
-"C'est en forgeant que l'on devient forgeron" 🚀
+"C'est en forgeant que l'on devient forgeron"
