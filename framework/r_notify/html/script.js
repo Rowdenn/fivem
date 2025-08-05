@@ -112,8 +112,6 @@ function clearAllNotifications() {
 }
 
 function showProximityNotification(data) {
-    hideProximityNotification();
-
     const notification = document.createElement('div');
     notification.className = 'notification proximity';
     notification.id = `proximity-notification-${++notificationCount}`;
