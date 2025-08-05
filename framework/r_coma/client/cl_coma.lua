@@ -153,7 +153,7 @@ function StartDeathProcess(cat, koTime)
     isInDeathProcess = true
     deathTimer = koTime
 
-    exports['framework']:SetForcedRagdoll(true)
+    SetForcedRagdoll(true)
     MakePlayerInvisibleToNPCs(true)
 
     ShowComaInterface(cat, koTime)
@@ -280,11 +280,5 @@ AddEventHandler('gameEventTriggered', function(name, data)
 
             print("Player damaged by: " .. GetWeaponCategory(weaponHash))
         end
-    end
-end)
-
-exports('StartDeathProcess', function(cat, koTime)
-    if not isInDeathProcess then
-        StartDeathProcess(cat, koTime)
     end
 end)
