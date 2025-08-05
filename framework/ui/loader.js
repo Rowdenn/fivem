@@ -108,7 +108,7 @@ class SimpleUILoader {
             // Ajouter l'animation d'apparition
             setTimeout(() => {
                 moduleContainer.classList.add('loaded');
-            }, 50);
+            }, 10);
 
             // Ajouter un event listener pour mettre au premier plan au clic (sauf pour les modules persistants cachés)
             if (!isPersistent) {
@@ -142,7 +142,7 @@ class SimpleUILoader {
                     module: module,
                     data: data
                 }, '*');
-            }, 100);
+            }, 20);
 
             if (debugMode) {
                 console.log(`Module ${module} chargé avec succès avec z-index: ${moduleZIndex}`);
@@ -458,6 +458,7 @@ class SimpleUILoader {
             'coma': 'critical',
             'inventory': 'critical',
             'character': 'normal',
+            'bank': 'normal',
             'banking': 'normal',
             'admin': 'normal',
             'notify': 'low',
@@ -487,7 +488,7 @@ class SimpleUILoader {
             'character': '../r_char/html',
             'notify': '../r_notify/html',
             'metabolism': '../r_metabolism/html',
-            'banking': '../r_banking/html',
+            'bank': '../r_banking/html',
             'admin': '../r_admin/html'
         };
 
