@@ -60,3 +60,36 @@ RegisterNetEvent('r_notify:hideProximity')
 AddEventHandler('r_notify:hideProximity', function()
     HideProximityNotification()
 end)
+
+-- Permet de gérer l'affichage des notifications plus facilement
+local ProximityNotificationManager = {}
+ProximityNotificationManager.__index = ProximityNotificationManager
+
+function CreateProximityNotificationManager()
+    local self = setmetatable({}, ProximityNotificationManager)
+    self.lastTarget = nil
+    return self
+end
+
+function ProximityNotificationManager:HandleNotification(currentTarget, getMessage, onInteract)
+    if currentTarget then
+        if self.lastTarget ~= currentTarget then
+            local message = type(getMessage) == "function" and getMessage(currentTarget) or getMessage
+            ShowProximityNotification(message)
+            self.lastTarget = currentTarget
+        end
+
+        if onInteract and IsControlJustPressed(0, 38) then
+            onInteract(currentTarget)
+        end
+
+        return 0
+    else
+        if self.lastTarget then
+            HideProximityNotification()
+            self.lastTarget = nil
+        end
+
+        return 1000
+    end
+end

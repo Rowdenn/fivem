@@ -185,26 +185,20 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
+    local notificationManager = CreateProximityNotificationManager()
+
     while true do
-        local sleep = 1000
-
-        if currentNearestNPC then
-            sleep = 0
-            local config = currentNearestNPC.config
-            local message = config.interactionText or "Appuyez sur E pour intéragir"
-
-            ShowProximityNotification(message)
-
-            if IsControlJustPressed(0, 38) then
-                if config.onInteract then
-                    if type(config.onInteract) == "function" then
-                        config.onInteract(currentNearestNPC.id, currentNearestNPC)
-                    end
+        local sleep = notificationManager:HandleNotification(
+            currentNearestNPC,
+            function(npc)
+                return npc.config.interactionText or "Appuyez sur E pour intéragir"
+            end,
+            function(npc)
+                if npc.config.onInteract and type(npc.config.onInteract) == "function" then
+                    npc.config.onInteract(npc.id, npc)
                 end
             end
-        else
-            HideProximityNotification()
-        end
+        )
 
         Citizen.Wait(sleep)
     end
