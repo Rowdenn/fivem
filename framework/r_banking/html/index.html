@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank System</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
@@ -58,18 +58,6 @@
                         <div class="card-body">
                             <div class="accounts-list" id="accountsList">
                                 <!-- Accounts will be populated by JS -->
-                                <div class="account-item main-account">
-                                    <div class="account-info">
-                                        <div class="account-type">
-                                            <i class="fas fa-user"></i>
-                                            <span>Compte Personnel</span>
-                                        </div>
-                                        <div class="account-number">#1234567890</div>
-                                    </div>
-                                    <div class="account-balance">
-                                        <span class="balance-amount">$25,430.50</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -106,26 +94,6 @@
                         <div class="card-body">
                             <div class="transactions-list" id="recentTransactions">
                                 <!-- Recent transactions will be populated by JS -->
-                                <div class="transaction-item">
-                                    <div class="transaction-icon deposit">
-                                        <i class="fas fa-arrow-down"></i>
-                                    </div>
-                                    <div class="transaction-details">
-                                        <div class="transaction-type">Dépôt</div>
-                                        <div class="transaction-time">Il y a 2 heures</div>
-                                    </div>
-                                    <div class="transaction-amount positive">+$1,500.00</div>
-                                </div>
-                                <div class="transaction-item">
-                                    <div class="transaction-icon transfer">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </div>
-                                    <div class="transaction-details">
-                                        <div class="transaction-type">Virement vers John Smith</div>
-                                        <div class="transaction-time">Hier à 14:30</div>
-                                    </div>
-                                    <div class="transaction-amount negative">-$500.00</div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -310,22 +278,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal" id="confirmModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Confirmation</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="modalMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn secondary" id="modalCancel">Annuler</button>
-                <button class="btn primary" id="modalConfirm">Confirmer</button>
-            </div>
-        </div>
-    </div>
 
     <div class="notification" id="notification">
         <div class="notification-content">
