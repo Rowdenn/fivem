@@ -14,23 +14,16 @@ let allGroundItems = [];
 window.addEventListener('message', function (event) {
     const data = event.data;
 
-    if (data.module === 'inventory') {
-        console.log('[Inventory Module] Message reçu:', JSON.stringify(data));
-    }
-
     // Gestion des événements du loader UI
     switch (data.action) {
         case 'init':
             if (data.module === 'inventory' && data.data) {
-                console.log('[Inventory Module] Initialisation avec données:', data.data);
-                console.log('[Inventory Module] playerInventory length:', data.data.playerInventory ? data.data.playerInventory.length : 'undefined');
                 openInventory(data.data);
             }
             break;
 
         case 'update':
             if (data.module === 'inventory' && data.data) {
-                console.log('[Inventory Module] Mise à jour avec données:', JSON.stringify(data.data));
                 handleUpdate(data.data);
                 // S'assurer que l'inventaire est visible quand on reçoit des données
                 if (!inventoryOpen && (data.data.type === 'updateInventory' || data.data.type === 'openInventory')) {
@@ -41,14 +34,12 @@ window.addEventListener('message', function (event) {
 
         case 'show':
             if (data.module === 'inventory') {
-                console.log('[Inventory Module] Affichage du module');
                 showInventory();
             }
             break;
 
         case 'hideModule':
             if (data.module === 'inventory') {
-                console.log('[Inventory Module] Masquage du module');
                 hideInventory();
                 inventoryOpen = false; // S'assurer que le flag est correct
             }
@@ -56,7 +47,6 @@ window.addEventListener('message', function (event) {
 
         case 'closeUI':
             if (data.module === 'inventory') {
-                console.log('[Inventory Module] Fermeture du module');
                 closeInventory();
             }
             break;
@@ -112,16 +102,6 @@ function hideInventory() {
     inventoryOpen = false;
 }
 
-function handleItemInfo(itemData) {
-    // Gérer les informations d'item si nécessaire
-    console.log('[Inventory Module] Informations d\'item reçues:', itemData);
-}
-
-function handlePlayerModel(playerData) {
-    // Gérer la mise à jour du modèle du joueur si nécessaire
-    console.log('[Inventory Module] Données du joueur reçues:', playerData);
-}
-
 // ! EXEMPLE POUR REFRESH LE PERSO APRES UNE ACTION
 function onItemEquipped() {
     // Après avoir équipé un item, rafraîchir l'affichage
@@ -131,7 +111,6 @@ function onItemEquipped() {
 }
 
 function openInventory(data = {}) {
-    console.log('[Inventory Module] openInventory appelé avec data:', data);
 
     // Nettoyer d'abord tout état de drag précédent
     cleanupDrag();
@@ -147,19 +126,16 @@ function openInventory(data = {}) {
 
     // Mettre à jour avec les données reçues
     if (data.playerInventory) {
-        console.log('[Inventory Module] Mise à jour playerInventory avec', data.playerInventory.length, 'items');
         playerInventory = data.playerInventory;
         updatePlayerSlots();
     }
 
     if (data.groundItems) {
-        console.log('[Inventory Module] Mise à jour groundItems avec', data.groundItems.length, 'items');
         groundItemsForInventory = data.groundItems;
         updateGroundSlots();
     }
 
     if (data.playerData) {
-        console.log('[Inventory Module] Mise à jour playerData');
         updatePlayerInfo(data.playerData);
     }
 
@@ -287,7 +263,6 @@ function createItemImage(item, slot) {
     };
 
     itemImg.src = getImagePath(item.image);
-    console.log(`Loading image for item: ${item.item} from ${itemImg.src}`);
     return itemImg;
 }
 
@@ -982,6 +957,3 @@ document.addEventListener('keydown', function (event) {
         });
     }
 });
-
-// Initialisation du module
-console.log('[Inventory Module] Module inventaire chargé');
