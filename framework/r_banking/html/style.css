@@ -803,17 +803,6 @@ body {
         width: 95%;
         margin: 1rem;
     }
-
-    .notification {
-        left: 1rem;
-        right: 1rem;
-        min-width: auto;
-        transform: translateY(-100px);
-    }
-
-    .notification.show {
-        transform: translateY(0);
-    }
 }
 
 @media (max-width: 480px) {
