@@ -76,7 +76,7 @@ function CreateBankAccount(identifier, accountType, cb)
         GenerateAccountNumber(function(accountNumber)
             local insertAccountQuery = [[
                 INSERT INTO bank_accounts (account_number, account_name, account_type, balance, is_active)
-                VALUES (?, ?, ?, 0, 1)
+                VALUES (?, ?, ?, 1000, 1)
             ]]
 
             local accountName = "Compte " ..
@@ -123,8 +123,6 @@ end
 
 function DepositMoney(source, accountNumber, amount, description, performedBy, cb)
     local playerIdentifier = GetPlayerIdentifier(source, 0)
-
-    print(playerIdentifier)
 
     GetAccountByNumber(accountNumber, function(account)
         if not account then
